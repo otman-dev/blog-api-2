@@ -1,5 +1,5 @@
 import dbConnect from './db/contentDb';
-import Post from '@/models/Blog';
+import getBlogModel from '@/models/Blog';
 import { generateRandomPost } from './groqWithMinimalPrompts';
 import { getAutomationState, setAutomationState, incrementPostCount } from '../models/AutomationState';
 
@@ -32,8 +32,8 @@ export class AutoPostService {
       // Generate post content using Groq
       const generatedPost = await generateRandomPost();
       
-      // Connect to database
-      await dbConnect();
+      // Connect to database and get blog model
+      const BlogModel = await getBlogModel();
       
       // Create and save the post with retry logic for duplicate slugs
       let attempts = 0;
@@ -41,7 +41,7 @@ export class AutoPostService {
       
       while (attempts < maxAttempts) {
         try {
-          const post = new Post({
+          const post = new BlogModel({
             title: generatedPost.title,
             content: generatedPost.content,
             excerpt: generatedPost.excerpt,

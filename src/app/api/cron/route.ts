@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import AutoPostService from '@/lib/autoPostService';
 
+// Secret API key for cron job authentication
+const CRON_API_KEY = process.env.CRON_API_KEY || 'default-cron-secret-key-please-change';
+
 // This endpoint is designed to be called by external cron services
 export async function POST(request: NextRequest) {
   try {
+    // API key authentication
+    const apiKey = request.headers.get('x-api-key');
+    
+    // Check if API key is valid
+    if (apiKey !== CRON_API_KEY) {
+      console.log('⚠️ Invalid API key used for cron job');
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     const autoService = AutoPostService.getInstance();
     
     // Check if automation is enabled in database
@@ -36,9 +51,21 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Optional: Allow GET for testing
-export async function GET() {
+// Optional: Allow GET for testing - also secured with API key
+export async function GET(request: NextRequest) {
   try {
+    // API key authentication
+    const apiKey = request.headers.get('x-api-key');
+    
+    // Check if API key is valid
+    if (apiKey !== CRON_API_KEY) {
+      console.log('⚠️ Invalid API key used for cron job status check');
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     const autoService = AutoPostService.getInstance();
     const status = await autoService.getStatus();
     
@@ -48,12 +75,12 @@ export async function GET() {
         isActive: status.isRunning,
         totalPosts: status.totalPosts,
         lastGenerated: status.lastGenerated,
-        message: 'Cron endpoint is ready'
       }
     });
   } catch (error) {
+    console.error('Error getting cron status:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to check status' },
+      { success: false, error: 'Failed to get cron status' },
       { status: 500 }
     );
   }
