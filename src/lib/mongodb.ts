@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
+import dbConnect from './db/contentDb';
+
+// This file is kept for backwards compatibility
+// New code should use either:
+// - import dbConnect from './db/contentDb'; // For blog content (otman-blog database)
+// - import adminDbConnect from './db/adminDb'; // For auth/users (blog-api database)
 
 declare global {
   var mongoose: {
     conn: mongoose.Mongoose | null;
     promise: Promise<mongoose.Mongoose> | null;
   };
-}
-
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
 /**

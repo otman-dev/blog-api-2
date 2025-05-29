@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { connectToBlogApiDB } from '../lib/mongoConfig';
+import adminDbConnect from '../lib/db/adminDb';
 
 export interface IAutomationState extends mongoose.Document {
   service: string;
@@ -52,8 +52,7 @@ export async function getAutomationStateModel(): Promise<mongoose.Model<IAutomat
   if (AutomationStateModel) {
     return AutomationStateModel;
   }
-
-  const connection = await connectToBlogApiDB();
+  const connection = await adminDbConnect();
   
   // Check if model already exists in this connection to avoid overwrite error
   try {

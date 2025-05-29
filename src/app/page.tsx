@@ -1,54 +1,49 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/components/AuthProvider';
+import { apiFetch } from '@/lib/apiFetch';
 
 export default function HomePage() {
+  const { token, isAuthenticated } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
-    fetchPosts();
-    checkGenerationStatus();
-  }, []);
-
-  const fetchPosts = async () => {
+    if (isAuthenticated) {
+      fetchPosts();
+      checkGenerationStatus();
+    }
+  }, [isAuthenticated]);  const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/blogs');
-      const data = await response.json();
-      if (data.success) {
-        setPosts(data.data.slice(0, 5)); // Show latest 5 posts
-      }
-    } catch (error) {
+      const response = await apiFetch('/api/blogs');
+      if (response.success) {
+        setPosts(response.data.slice(0, 5)); // Show latest 5 posts
+      }    } catch (error) {
       console.error('Error fetching posts:', error);
     }
   };
-  const checkGenerationStatus = async () => {
+    const checkGenerationStatus = async () => {
     try {
-      const response = await fetch('/api/automation-state');
-      const data = await response.json();
-      if (data.success) {
-        setIsGenerating(data.data.isActive);
-        console.log('✅ Loaded automation state from database:', data.data.isActive);
+      const response = await apiFetch('/api/automation-state');
+      if (response.success) {
+        setIsGenerating(response.data.isActive);
+        console.log('✅ Loaded automation state from database:', response.data.isActive);
       }
     } catch (error) {
       console.error('Error checking automation state:', error);
     }
-  };
-  const handleAutoGeneration = async (action: string) => {
+  };const handleAutoGeneration = async (action: string) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/auto-generate', {
+      const data = await apiFetch('/api/auto-generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },        body: JSON.stringify({ 
+        body: JSON.stringify({ 
           action,
           intervalMinutes: 10 
         }),
       });
-
-      const data = await response.json();
+      
       if (data.success) {
         // Refresh the state from database instead of assuming the action result
         await checkGenerationStatus();
@@ -64,7 +59,6 @@ export default function HomePage() {
       setLoading(false);
     }
   };
-
   const generateNow = async () => {
     setLoading(true);
     try {
@@ -72,6 +66,7 @@ export default function HomePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify({ generateWithGroq: true }),
       });

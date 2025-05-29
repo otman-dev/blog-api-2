@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Post from '@/models/Blog';
 import { generateRandomPost } from '@/lib/groqWithMinimalPrompts';
+import { requireAuth } from '@/lib/middleware';
 
 export async function GET() {
   try {
@@ -23,6 +24,16 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication before proceeding
+    try {
+      await requireAuth(request);
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    
     const body = await request.json();
     
     // Check if this is a post generation request

@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAutomationState, setAutomationState } from '../../../models/AutomationState';
+import { requireAuth } from '@/lib/middleware';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Check authentication before proceeding
+    try {
+      await requireAuth(request);
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    
     const state = await getAutomationState();
     return NextResponse.json({
       success: true,

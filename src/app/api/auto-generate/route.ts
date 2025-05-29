@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import AutoPostService from '@/lib/autoPostService';
+import { requireAuth } from '@/lib/middleware';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication before proceeding
+    try {
+      await requireAuth(request);
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    
     const autoService = AutoPostService.getInstance();
     const body = await request.json();
     const { action, intervalMinutes } = body;
