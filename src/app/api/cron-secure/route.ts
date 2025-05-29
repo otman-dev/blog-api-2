@@ -9,6 +9,20 @@ const API_KEY = process.env.CRON_API_KEY || 'temporary-dev-cron-api-key';
  * This endpoint bypasses JWT authentication for automated scheduling
  */
 export async function GET(request: Request) {
+  return handleCronRequest(request);
+}
+
+/**
+ * Adding POST method support for cron.org which sends POST requests 
+ */
+export async function POST(request: Request) {
+  return handleCronRequest(request);
+}
+
+/**
+ * Shared handler function for both GET and POST requests
+ */
+async function handleCronRequest(request: Request) {
   try {
     // Get the API key from the request header or query parameter
     const apiKey = request.headers.get('x-api-key') || 
