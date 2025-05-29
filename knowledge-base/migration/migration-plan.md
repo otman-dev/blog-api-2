@@ -16,7 +16,7 @@ This migration transforms the current hardcoded prompt system in `groq.ts` into 
 ### Current Assets to Preserve
 - ✅ Robust JSON parsing and error handling
 - ✅ Multi-model fallback system
-- ✅ French language focus for practical tutorials
+- ✅ Englishlanguage focus for practical tutorials
 - ✅ Strong technical focus on DevOps/Engineering topics
 - ✅ Detailed troubleshooting and complete code examples
 

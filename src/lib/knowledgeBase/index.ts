@@ -137,23 +137,25 @@ export class KnowledgeBaseService {
       models
     };
   }
-  
-  // Generate system message with zero hardcoding
+    // Generate system message with zero hardcoding
   private generateSystemMessage(category: Category): string {
     return `You are an expert technical writer specializing in ${category.name.toLowerCase()}. 
 Your writing style is clear, precise and focuses on practical applications.
 Your target audience is ${category.targetAudience}.
 You create content that is well-structured, thorough, and provides actionable insights.
 
+IMPORTANT: All content must be written in English, regardless of the topic title language.
+Translate any non-English topic titles or terms into English in your response.
+
 Output your content as valid JSON with properly escaped special characters.`;
   }
-
   // Generate user message with zero hardcoding
   private generateUserMessage(topic: Topic, category: Category, customInstructions?: string): string {
     // Build prompts entirely from metadata
-    const taskDefinition = `Create a comprehensive ${category.name.toLowerCase()} about "${topic.topic}".
+    const taskDefinition = `Create a comprehensive ${category.name.toLowerCase()} in English about "${topic.topic}".
 Focus on the specific angle: ${topic.angle || 'practical implementation and real-world usage'}.
-This should be a ${topic.difficulty} level guide with an estimated completion time of ${topic.timeToComplete}.`;
+This should be a ${topic.difficulty} level guide with an estimated completion time of ${topic.timeToComplete}.
+IMPORTANT: Write the entire content in English, even if the topic or keywords contain non-English terms.`;
 
     // Generate content structure from category or default
     const sections = category.requiredSections || [
@@ -177,20 +179,20 @@ ${sections.map(section => `- ${section}`).join('\n')}`;
 - Include links to relevant documentation or resources
 - Use proper formatting for code, commands, and outputs
 - Keywords to include: ${topic.keywords.join(', ')}
-- Tools to reference: ${topic.tools.join(', ')}`;
-
-    // Generate output format
+- Tools to reference: ${topic.tools.join(', ')}`;    // Generate output format
     const outputFormat = `Format your response as a JSON object with the following structure:
 {
-  "title": "The title of your content",
+  "title": "The title of your content in English",
   "summary": "A brief summary of what the content covers",
   "difficulty": "${topic.difficulty}",
   "estimatedTime": "${topic.timeToComplete}",
-  "content": "Full markdown content with all sections",
+  "content": "Full markdown content with all sections in English",
   "excerpt": "A brief excerpt suitable for a blog preview",
   "categories": ["${category.name}"],
   "tags": ["tag1", "tag2", ...]
-}`;
+}
+
+ALL content must be in English, including the title, summary, content, and excerpt.`;
 
     // Combine all parts
     let fullPrompt = [taskDefinition, contentStructure, qualityGuidelines, outputFormat].join('\n\n');

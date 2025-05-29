@@ -7,7 +7,7 @@ This knowledge base contains structured templates, guidelines, and configuration
 Based on the existing `groq.ts` implementation, this system focuses on:
 - **Technical tutorials and setup guides**
 - **Step-by-step practical content**
-- **French language content with practical focus**
+- **language content with practical focus**
 - **DevOps, CI/CD, and engineering topics**
 
 ## Structure
