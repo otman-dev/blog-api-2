@@ -1,0 +1,107 @@
+[
+  {
+    "id": "tutorials-setup",
+    "name": "Tutorials & Setup",
+    "description": "Step-by-step guides for setting up tools, frameworks, and development environments",
+    "targetAudience": "Developers and DevOps engineers",
+    "contentStyle": "Practical, hands-on tutorials with complete working examples",
+    "averageLength": "2000-3000 words",
+    "requiredSections": [
+      "Prerequisites",
+      "Step-by-step setup",
+      "Configuration",
+      "Testing and validation",
+      "Troubleshooting"
+    ]
+  },
+  {
+    "id": "devops-cicd",
+    "name": "DevOps & CI/CD",
+    "description": "Automation, deployment pipelines, container orchestration, and infrastructure as code",
+    "targetAudience": "DevOps engineers and system administrators",
+    "contentStyle": "Production-ready solutions with security and scalability considerations",
+    "averageLength": "2500-3500 words",
+    "requiredSections": [
+      "Architecture overview",
+      "Implementation steps",
+      "Security considerations",
+      "Monitoring and logging",
+      "Scaling strategies"
+    ]
+  },
+  {
+    "id": "performance-debugging",
+    "name": "Performance & Debugging",
+    "description": "Performance optimization, profiling, debugging techniques, and troubleshooting",
+    "targetAudience": "Senior developers and performance engineers",
+    "contentStyle": "Deep technical analysis with metrics, benchmarks, and optimization strategies",
+    "averageLength": "2200-3000 words",
+    "requiredSections": [
+      "Performance baseline",
+      "Profiling and analysis",
+      "Optimization techniques",
+      "Measurement and validation",
+      "Best practices"
+    ]
+  },
+  {
+    "id": "security-authentication",
+    "name": "Security & Authentication",
+    "description": "Security best practices, authentication systems, encryption, and vulnerability mitigation",
+    "targetAudience": "Full-stack developers and security engineers",
+    "contentStyle": "Security-focused with threat analysis and mitigation strategies",
+    "averageLength": "2300-3200 words",
+    "requiredSections": [
+      "Security assessment",
+      "Implementation guide",
+      "Threat mitigation",
+      "Testing security",
+      "Compliance considerations"
+    ]
+  },
+  {
+    "id": "database-backend",
+    "name": "Database & Backend",
+    "description": "Database design, API development, backend architecture, and data management",
+    "targetAudience": "Backend developers and database administrators",
+    "contentStyle": "Architecture-focused with scalability and data integrity considerations",
+    "averageLength": "2400-3300 words",
+    "requiredSections": [
+      "Database design",
+      "Implementation details",
+      "Query optimization",
+      "Backup and recovery",
+      "Scaling strategies"
+    ]
+  },
+  {
+    "id": "frontend-tools",
+    "name": "Frontend & Tools",
+    "description": "Frontend frameworks, build tools, development workflows, and user experience optimization",
+    "targetAudience": "Frontend developers and UI/UX engineers",
+    "contentStyle": "User-centric with performance and accessibility considerations",
+    "averageLength": "2100-2800 words",
+    "requiredSections": [
+      "Setup and configuration",
+      "Development workflow",
+      "Performance optimization",
+      "Testing strategies",
+      "Deployment and monitoring"
+    ]
+  },
+  {
+    "id": "cloud-infrastructure",
+    "name": "Cloud & Infrastructure",
+    "description": "Cloud platforms, infrastructure as code, serverless, and distributed systems",
+    "targetAudience": "Cloud architects and infrastructure engineers",
+    "contentStyle": "Enterprise-focused with cost optimization and reliability considerations",
+    "averageLength": "2600-3500 words",
+    "requiredSections": [
+      "Architecture design",
+      "Infrastructure setup",
+      "Cost optimization",
+      "Monitoring and alerting",
+      "Disaster recovery"
+    ]
+  }
+]

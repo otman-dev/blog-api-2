@@ -1,6 +1,6 @@
 import dbConnect from './mongodb';
 import Post from '@/models/Blog';
-import { generateRandomPost } from './groq';
+import { generateRandomPost } from './groqWithMinimalPrompts';
 import { getAutomationState, setAutomationState, incrementPostCount } from '../models/AutomationState';
 
 export class AutoPostService {

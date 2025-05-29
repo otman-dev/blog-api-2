@@ -1,0 +1,92 @@
+[
+  {
+    "id": "llama-4-scout",
+    "name": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "priority": 1,
+    "tokensPerMinute": 30000,
+    "dailyLimit": "none",
+    "bestFor": ["complex tutorials", "technical content", "detailed explanations"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "llama-4-maverick",
+    "name": "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "priority": 2,
+    "tokensPerMinute": 6000,
+    "dailyLimit": "none",
+    "bestFor": ["structured content", "consistent formatting", "technical accuracy"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "llama-3-3-70b",
+    "name": "llama-3.3-70b-versatile",
+    "priority": 3,
+    "tokensPerMinute": 12000,
+    "dailyLimit": 100000,
+    "bestFor": ["versatile content", "good reasoning", "code generation"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "deepseek-r1",
+    "name": "deepseek-r1-distill-llama-70b",
+    "priority": 4,
+    "tokensPerMinute": 6000,
+    "dailyLimit": "none",
+    "bestFor": ["technical reasoning", "problem solving", "debugging content"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "compound-beta",
+    "name": "compound-beta",
+    "priority": 5,
+    "tokensPerMinute": 70000,
+    "dailyLimit": "none",
+    "bestFor": ["fast generation", "simple tutorials", "quick content"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "llama-3-70b",
+    "name": "llama3-70b-8192",
+    "priority": 6,
+    "tokensPerMinute": 6000,
+    "dailyLimit": 500000,
+    "bestFor": ["reliable content", "consistent quality", "balanced approach"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "gemma-2-9b",
+    "name": "gemma2-9b-it",
+    "priority": 7,
+    "tokensPerMinute": 15000,
+    "dailyLimit": 500000,
+    "bestFor": ["lightweight content", "simple tutorials", "quick generation"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "llama-3-1-8b-instant",
+    "name": "llama-3.1-8b-instant",
+    "priority": 8,
+    "tokensPerMinute": 6000,
+    "dailyLimit": 500000,
+    "bestFor": ["fast content", "simple guides", "basic tutorials"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
+  {
+    "id": "llama-3-8b",
+    "name": "llama3-8b-8192",
+    "priority": 9,
+    "tokensPerMinute": 6000,
+    "dailyLimit": 500000,
+    "bestFor": ["fallback option", "basic content", "simple tutorials"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  }
+]

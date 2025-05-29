@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Post from '@/models/Blog';
-import { generateRandomPost } from '@/lib/groq';
+import { generateRandomPost } from '@/lib/groqWithMinimalPrompts';
 
 export async function GET() {
   try {

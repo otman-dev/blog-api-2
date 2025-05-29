@@ -1,0 +1,102 @@
+[
+  {
+    "id": "cicd-setup",
+    "topic": "Setup complet d'un pipeline CI/CD avec GitHub Actions et Docker",
+    "category": "DevOps & CI/CD",
+    "angle": "Guide step-by-step avec GitHub Actions, tests automatisés, déploiement Docker, rollback strategies",
+    "keywords": ["CI/CD", "GitHub Actions", "Docker", "DevOps", "Pipeline"],
+    "difficulty": "intermediate",
+    "timeToComplete": "45 minutes",
+    "tools": ["GitHub", "Docker", "Node.js", "Jest"]
+  },
+  {
+    "id": "kubernetes-helm",
+    "topic": "Configuration de Kubernetes avec Helm : guide étape par étape",
+    "category": "DevOps & CI/CD",
+    "angle": "Installation kubectl, configuration cluster, création charts, debugging pods, scaling horizontal",
+    "keywords": ["Kubernetes", "Helm", "K8s", "Container", "Orchestration"],
+    "difficulty": "advanced",
+    "timeToComplete": "60 minutes",
+    "tools": ["kubectl", "Helm", "Docker", "minikube"]
+  },
+  {
+    "id": "react-debugging",
+    "topic": "Debugging des applications React avec Chrome DevTools avancés",
+    "category": "Frontend & Tools",
+    "angle": "Chrome DevTools, React Developer Tools, memory profiling, performance tab, network analysis",
+    "keywords": ["React", "Debugging", "Chrome DevTools", "Performance"],
+    "difficulty": "intermediate",
+    "timeToComplete": "30 minutes",
+    "tools": ["Chrome DevTools", "React Developer Tools", "React"]
+  },
+  {
+    "id": "postgresql-optimization",
+    "topic": "Optimisation des performances PostgreSQL en production",
+    "category": "Database & Backend",
+    "angle": "Index optimization, query analysis avec EXPLAIN, connection pooling, vacuum strategies",
+    "keywords": ["PostgreSQL", "Database", "Performance", "Optimization"],
+    "difficulty": "advanced",
+    "timeToComplete": "50 minutes",
+    "tools": ["PostgreSQL", "pgAdmin", "EXPLAIN", "pg_stat_statements"]
+  },
+  {
+    "id": "monitoring-setup",
+    "topic": "Setup d'un monitoring complet avec Prometheus et Grafana",
+    "category": "DevOps & CI/CD",
+    "angle": "Installation Prometheus, configuration metrics, création dashboards Grafana, alerting rules",
+    "keywords": ["Monitoring", "Prometheus", "Grafana", "Metrics", "Alerting"],
+    "difficulty": "intermediate",
+    "timeToComplete": "45 minutes",
+    "tools": ["Prometheus", "Grafana", "Docker", "Node.js"]
+  },
+  {
+    "id": "rest-to-graphql",
+    "topic": "Migration d'une API REST vers GraphQL : étapes pratiques",
+    "category": "Database & Backend",
+    "angle": "Schema design, resolvers implementation, DataLoader pattern, error handling, testing",
+    "keywords": ["GraphQL", "REST", "API", "Migration", "Schema"],
+    "difficulty": "advanced",
+    "timeToComplete": "60 minutes",
+    "tools": ["GraphQL", "Apollo Server", "DataLoader", "Jest"]
+  },
+  {
+    "id": "ssl-security",
+    "topic": "Configuration SSL/TLS et sécurisation d'une API Node.js",
+    "category": "Security & Authentication",
+    "angle": "Certificats Let's Encrypt, HTTPS setup, rate limiting, helmet.js, CORS configuration",
+    "keywords": ["SSL", "TLS", "Security", "Node.js", "HTTPS"],
+    "difficulty": "intermediate",
+    "timeToComplete": "40 minutes",
+    "tools": ["Let's Encrypt", "helmet.js", "express-rate-limit", "Node.js"]
+  },
+  {
+    "id": "docker-compose-dev",
+    "topic": "Setup d'un environnement de développement avec Docker Compose",
+    "category": "DevOps & CI/CD",
+    "angle": "Docker Compose multi-services, hot reloading, debugging containers, volumes mounting",
+    "keywords": ["Docker", "Docker Compose", "Development", "Environment"],
+    "difficulty": "beginner",
+    "timeToComplete": "35 minutes",
+    "tools": ["Docker", "Docker Compose", "VS Code", "Node.js"]
+  },
+  {
+    "id": "redis-caching",
+    "topic": "Implémentation du caching Redis pour améliorer les performances",
+    "category": "Performance & Debugging",
+    "angle": "Installation Redis, connection pooling, cache strategies, TTL management, cluster setup",
+    "keywords": ["Redis", "Caching", "Performance", "NoSQL"],
+    "difficulty": "intermediate",
+    "timeToComplete": "40 minutes",
+    "tools": ["Redis", "Node.js", "ioredis", "Docker"]
+  },
+  {
+    "id": "elasticsearch-cluster",
+    "topic": "Configuration d'un cluster Elasticsearch pour la recherche",
+    "category": "Database & Backend",
+    "angle": "Installation cluster, mapping configuration, search queries, aggregations, monitoring",
+    "keywords": ["Elasticsearch", "Search", "Cluster", "NoSQL"],
+    "difficulty": "advanced",
+    "timeToComplete": "55 minutes",
+    "tools": ["Elasticsearch", "Kibana", "Docker", "curl"]
+  }
+]

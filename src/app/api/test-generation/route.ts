@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateRandomPost } from '@/lib/groq';
+import { generateRandomPost } from '@/lib/groqWithMinimalPrompts';
 
 export async function GET() {
   try {
