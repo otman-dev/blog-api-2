@@ -17,116 +17,119 @@ export interface GeneratedPost {
   tags: string[];
 }
 
-// Topics related to IT, Software Engineering, and Technology
+// Practical engineering topics focused on tutorials, setups, and problem-solving
 const TECH_TOPICS = [
-  "Architecture microservices et scalabilité",
-  "DevOps et CI/CD: bonnes pratiques",
-  "Intelligence Artificielle et Machine Learning",
-  "Développement d'applications mobiles cross-platform",
-  "Sécurité informatique et cybersécurité",
-  "Cloud Computing: AWS, Azure, GCP",
-  "Développement web avec React et Next.js",
-  "APIs RESTful et GraphQL",
-  "Containers Docker et orchestration Kubernetes",
-  "Bases de données NoSQL vs SQL",
-  "Architecture serverless et fonctions cloud",
-  "Tests automatisés et TDD",
-  "Performance web et optimisation",
-  "Blockchain et développement DApps",
-  "Progressive Web Apps (PWA)",
-  "TypeScript et développement type-safe",
-  "Design patterns en programmation",
-  "Monitoring et observabilité des applications",
-  "Développement d'APIs avec Node.js",
-  "React Native et développement mobile",
-  "Automatisation et scripting",
-  "Clean Code et architecture logicielle",
-  "Git workflows et collaboration",
-  "Tech Leadership et gestion d'équipe",
-  "Outils de développement et productivité"
+  "Setup complet d'un pipeline CI/CD avec GitHub Actions et Docker",
+  "Configuration de Kubernetes avec Helm : guide étape par étape",
+  "Debugging des applications React avec Chrome DevTools avancés",
+  "Optimisation des performances PostgreSQL en production",
+  "Setup d'un monitoring complet avec Prometheus et Grafana",
+  "Migration d'une API REST vers GraphQL : étapes pratiques",
+  "Configuration SSL/TLS et sécurisation d'une API Node.js",
+  "Setup d'un environnement de développement avec Docker Compose",
+  "Implémentation du caching Redis pour améliorer les performances",
+  "Configuration d'un cluster Elasticsearch pour la recherche",
+  "Setup d'authentication OAuth2 avec JWT dans Express.js",
+  "Déploiement automatisé sur AWS avec Terraform",
+  "Configuration de tests automatisés avec Jest et Cypress",
+  "Setup d'un projet TypeScript avec ESLint et Prettier",
+  "Debugging des memory leaks en Node.js avec clinic.js",
+  "Configuration de Web Workers pour les calculs intensifs",
+  "Setup d'un serveur WebSocket avec Socket.io en production",
+  "Optimisation du bundle Webpack pour réduire la taille",
+  "Configuration de hot reloading avec Vite et React",
+  "Setup d'une base de données MongoDB avec replica sets",
+  "Debugging des problèmes de performance avec Lighthouse",
+  "Configuration d'un reverse proxy Nginx pour microservices",
+  "Setup d'un environnement de test avec Testcontainers",
+  "Migration vers TypeScript dans un projet JavaScript existant",
+  "Configuration d'un CDN CloudFlare pour optimiser les assets"
 ];
 
 const CATEGORIES = [
-  "Développement Web",
-  "DevOps & Cloud", 
-  "Architecture Logicielle",
-  "Mobile Development",
-  "Data & AI",
-  "Sécurité",
-  "Tech Leadership"
+  "Tutorials & Setup",
+  "DevOps & CI/CD", 
+  "Performance & Debugging",
+  "Security & Authentication",
+  "Database & Backend",
+  "Frontend & Tools",
+  "Cloud & Infrastructure"
 ];
+
+function getSpecificAngle(topic: string): string {
+  const angles: { [key: string]: string } = {
+    "Setup complet d'un pipeline CI/CD": "Guide step-by-step avec GitHub Actions, tests automatisés, déploiement Docker, rollback strategies",
+    "Configuration de Kubernetes avec Helm": "Installation kubectl, configuration cluster, création charts, debugging pods, scaling horizontal",
+    "Debugging des applications React": "Chrome DevTools, React Developer Tools, memory profiling, performance tab, network analysis",
+    "Optimisation des performances PostgreSQL": "Index optimization, query analysis avec EXPLAIN, connection pooling, vacuum strategies",
+    "Setup d'un monitoring complet": "Installation Prometheus, configuration metrics, création dashboards Grafana, alerting rules",
+    "Migration d'une API REST vers GraphQL": "Schema design, resolvers implementation, DataLoader pattern, error handling, testing",
+    "Configuration SSL/TLS et sécurisation": "Certificats Let's Encrypt, HTTPS setup, rate limiting, helmet.js, CORS configuration",
+    "Setup d'un environnement de développement": "Docker Compose multi-services, hot reloading, debugging containers, volumes mounting",
+    "Implémentation du caching Redis": "Installation Redis, connection pooling, cache strategies, TTL management, cluster setup",
+    "Configuration d'un cluster Elasticsearch": "Installation cluster, mapping configuration, search queries, aggregations, monitoring",
+    "Setup d'authentication OAuth2": "JWT implementation, refresh tokens, middleware protection, password hashing, session management",
+    "Déploiement automatisé sur AWS": "Terraform scripts, EC2 provisioning, load balancer setup, RDS configuration, monitoring",
+    "Configuration de tests automatisés": "Jest unit tests, Cypress E2E, test coverage, mocking strategies, CI integration",
+    "Setup d'un projet TypeScript": "tsconfig.json configuration, ESLint rules, Prettier setup, build optimization, debugging",
+    "Debugging des memory leaks": "clinic.js tools, heap snapshots analysis, event loop monitoring, memory profiling techniques",
+    "Configuration de Web Workers": "Worker scripts creation, message passing, shared memory, performance comparisons, debugging",
+    "Setup d'un serveur WebSocket": "Socket.io configuration, real-time events, room management, scaling strategies, monitoring",
+    "Optimisation du bundle Webpack": "Code splitting, tree shaking, lazy loading, bundle analysis, performance optimization",
+    "Configuration de hot reloading": "Vite setup, HMR configuration, proxy settings, environment variables, debugging tools",
+    "Setup d'une base de données MongoDB": "Replica set configuration, sharding strategies, indexing optimization, backup strategies",
+    "Debugging des problèmes de performance": "Lighthouse audits, Core Web Vitals, performance profiling, optimization techniques",
+    "Configuration d'un reverse proxy Nginx": "Load balancing, SSL termination, caching rules, security headers, monitoring",
+    "Setup d'un environnement de test": "Testcontainers configuration, database testing, integration tests, mock services",
+    "Migration vers TypeScript": "Incremental migration strategy, type definitions, refactoring patterns, tooling setup",
+    "Configuration d'un CDN CloudFlare": "DNS setup, caching rules, security settings, performance optimization, monitoring"
+  };
+  
+  // Find matching angle by checking if topic contains key words
+  for (const [key, angle] of Object.entries(angles)) {
+    if (topic.toLowerCase().includes(key.toLowerCase().split(' ')[0]) || 
+        topic.toLowerCase().includes(key.toLowerCase().split(' ')[1])) {
+      return angle;
+    }
+  }
+  
+  return `Guide pratique step-by-step pour ${topic} avec exemples de code, configuration complète et troubleshooting`;
+}
 
 export async function generateRandomPost(): Promise<GeneratedPost> {
   // Select random topic and category
   const randomTopic = TECH_TOPICS[Math.floor(Math.random() * TECH_TOPICS.length)];
-  const randomCategory = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];  const prompt = `
-Rédigez un article de blog technique COMPLET et DÉTAILLÉ sur le sujet "${randomTopic}" pour la catégorie "${randomCategory}".
+  const randomCategory = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];  const prompt = `Créez un TUTORIAL PRATIQUE complet sur "${randomTopic}" pour des ingénieurs logiciels.
 
-CONTEXTE: Vous écrivez pour un blog technique destiné aux développeurs, ingénieurs logiciel et architectes techniques. L'article doit être professionnel, informatif et actionnable.
+OBJECTIF: L'ingénieur doit pouvoir suivre le guide et avoir un système fonctionnel à la fin.
 
-STRUCTURE OBLIGATOIRE (personnalisez le contenu pour ${randomTopic}):
+CONTRAINTES TECHNIQUES STRICTES:
+- Retournez UNIQUEMENT du JSON valide
+- Utilisez \\n pour les retours à la ligne dans les strings
+- Échappez tous les guillemets avec \\"
+- N'utilisez JAMAIS de vraies nouvelles lignes dans les valeurs JSON
+- Testez mentalement que votre JSON peut être parsé
 
-1. **Introduction engageante** (2-3 paragraphes)
-   - Pourquoi ${randomTopic} est pertinent aujourd'hui
-   - Problèmes concrets que cela résout
-   - Ce que le lecteur va apprendre
-
-2. **Contexte et enjeux spécifiques à ${randomTopic}**
-   - Défis techniques actuels liés à ce sujet
-   - Impact sur les équipes de développement
-   - Tendances du marché
-
-3. **Concepts fondamentaux de ${randomTopic}**
-   - Définitions techniques précises
-   - Principes clés à retenir
-   - Différences avec les approches alternatives
-
-4. **Mise en pratique concrète**
-   - Exemples de code spécifiques à ${randomTopic}
-   - Étapes d'implémentation détaillées
-   - Configuration et setup
-
-5. **Bonnes pratiques pour ${randomTopic}**
-   - Recommandations basées sur l'expérience
-   - Erreurs courantes à éviter
-   - Patterns et anti-patterns
-
-6. **Outils et écosystème de ${randomTopic}**
-   - Technologies complémentaires
-   - Frameworks et bibliothèques recommandés
-   - Solutions du marché
-
-7. **Cas d'usage réels**
-   - Exemples d'entreprises utilisant ${randomTopic}
-   - Retours d'expérience concrets
-   - Métriques et résultats
-
-8. **Perspectives d'avenir**
-   - Évolutions prévues de ${randomTopic}
-   - Nouvelles tendances émergentes
-   - Recommandations pour rester à jour
-
-EXIGENCES DE CONTENU:
-- Minimum 1200 mots de contenu substantiel et unique
-- Chaque section doit être spécifiquement adaptée à ${randomTopic}
-- Inclure des exemples de code réalistes quand pertinent
-- Mentionner des outils, frameworks ou technologies spécifiques à ce domaine
-- Citer des entreprises, projets open-source ou études de cas réels
-- Ton professionnel mais accessible
-- Éviter les généralités, privilégier le concret et l'actionnable
-
-RÉPONDEZ UNIQUEMENT avec ce JSON (sans texte avant/après):
-
+FORMAT OBLIGATOIRE:
 {
-  "title": "Titre professionnel et accrocheur spécifique à ${randomTopic}",
-  "content": "Article complet en markdown avec les 8 sections détaillées ci-dessus",
-  "excerpt": "Résumé engageant en 2-3 phrases décrivant les bénéfices concrets (max 200 caractères)",
+  "title": "${randomTopic}: Tutorial Complet",
+  "content": "# ${randomTopic}\\n\\n## TL;DR\\nTutorial step-by-step pour ${randomTopic}. Suivez ce guide et obtenez un système fonctionnel en 30 minutes.\\n\\n## Prérequis\\n- Liste exacte des outils et versions nécessaires\\n- Commandes de vérification d'installation\\n\\n## Étape 1: Installation et Setup Initial\\n\`\`\`bash\\n# Commandes d'installation exactes\\n\`\`\`\\n\\n## Étape 2: Configuration de Base\\n\`\`\`yaml\\n# Fichiers de configuration complets\\n\`\`\`\\n\\n## Étape 3: Implémentation Core\\n\`\`\`javascript\\n// Code source fonctionnel et testé\\n\`\`\`\\n\\n## Étape 4: Tests et Validation\\n\`\`\`bash\\n# Commandes pour tester que tout fonctionne\\n\`\`\`\\n\\n## Étape 5: Optimisation et Production\\n- Bonnes pratiques de sécurité\\n- Configuration de monitoring\\n- Gestion des erreurs\\n\\n## Troubleshooting\\n- Erreurs communes et solutions\\n- Commandes de debugging\\n- Métriques à surveiller\\n\\n## Next Steps\\n- Fonctionnalités avancées à ajouter\\n- Ressources pour aller plus loin",
+  "excerpt": "Tutorial step-by-step pour ${randomTopic}. Suivez ce guide et obtenez un système fonctionnel en 30 minutes.",
   "categories": ["${randomCategory}"],
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+  "tags": ["tutorial", "setup", "guide", "step-by-step", "practical"]
 }
 
-IMPORTANT: Échappez tous les guillemets avec \\" et utilisez \\n pour les retours à la ligne dans le JSON.
-`;
+CONTRAINTES TECHNIQUES:
+- Code source COMPLET et FONCTIONNEL (pas de "..." ou placeholder)
+- Commandes CLI exactes et testées
+- Fichiers de configuration complets
+- Versions spécifiques des outils
+- Troubleshooting avec solutions concrètes
+- Métriques mesurables (temps d'exécution, memory usage, etc.)
+
+FOCUS: ${getSpecificAngle(randomTopic)}
+
+IMPORTANT: Retournez UNIQUEMENT le JSON valide, sans markdown, sans texte supplémentaire.`;
   
   // Try multiple models in case one fails
   const models = [
@@ -145,14 +148,16 @@ IMPORTANT: Échappez tous les guillemets avec \\" et utilisez \\n pour les retou
     try {
       console.log(`🔄 Trying model: ${model}`);
       
-      const completion = await groq.chat.completions.create({        messages: [          {
+      const completion = await groq.chat.completions.create({        messages: [
+          {
             role: "system",
-            content: "Vous êtes un tech lead senior avec 15+ ans d'expérience en développement logiciel, architecture cloud et ingénierie. Vous rédigez des articles techniques de haute qualité pour une audience de développeurs expérimentés. Générez UNIQUEMENT du JSON valide sans texte supplémentaire. Créez du contenu substantiel, détaillé et SPÉCIFIQUE au sujet traité - évitez les généralités et concentrez-vous sur des informations concrètes et actionnables."
+            content: "You are a Senior DevOps Engineer who writes practical tutorials. Your tutorials are so good that engineers bookmark them immediately. You provide COMPLETE working code, exact commands, and step-by-step instructions. Engineers can follow your guides and have working systems in 30 minutes. CRITICAL: You ONLY return valid JSON without any markdown formatting or extra text. Use \\n for newlines in JSON strings, escape all quotes with \\\" and never use literal newlines inside JSON string values."
           },
           {
             role: "user",
             content: prompt
-          }        ],
+          }
+        ],
         model: model,
         temperature: 0.7,
         max_tokens: 8000,  // Increased for longer content
@@ -161,212 +166,60 @@ IMPORTANT: Échappez tous les guillemets avec \\" et utilisez \\n pour les retou
       const response = completion.choices[0]?.message?.content;
         if (!response) {
         throw new Error(`No response from Groq API with model ${model}`);
-      }      console.log(`📝 Raw response from ${model}:`, response.substring(0, 300) + '...');
-
-      // Enhanced JSON cleaning and parsing
-      let cleanedResponse = response.trim();
+      }      console.log(`📝 Raw response from ${model}:`, response.substring(0, 200) + '...');      // Extract JSON from response and clean it properly
+      console.log(`🧹 Starting JSON cleanup for ${model}...`);
       
       // Remove markdown code blocks if present
-      cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-      
-      // Remove any leading/trailing text that might not be JSON
-      const jsonStart = cleanedResponse.indexOf('{');
-      const jsonEnd = cleanedResponse.lastIndexOf('}');
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
-        console.log(`🔍 No JSON brackets found in response from ${model}`);
-        throw new Error(`No valid JSON found in response from model ${model}`);
+      let jsonString = response;
+      if (jsonString.includes('```json')) {
+        jsonString = jsonString.replace(/```json\s*/g, '').replace(/\s*```/g, '');
+      }
+      if (jsonString.includes('```')) {
+        jsonString = jsonString.replace(/```\s*/g, '').replace(/\s*```/g, '');
       }
       
-      let jsonString = cleanedResponse.substring(jsonStart, jsonEnd + 1);
+      // Find the first { and last } to extract just the JSON object
+      const firstBrace = jsonString.indexOf('{');
+      const lastBrace = jsonString.lastIndexOf('}');
       
-      // Clean up problematic characters while preserving content
+      if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
+        console.error(`❌ No valid JSON structure found in response from ${model}`);
+        continue;
+      }
+      
+      jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+      
+      // Clean control characters and normalize line endings
       jsonString = jsonString
-        .replace(/\r\n/g, '\\n')
-        .replace(/\r/g, '\\n')
-        .replace(/(?<!\\)\n/g, '\\n')  // Replace unescaped newlines
-        .replace(/\t/g, '\\t')
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove control characters except \n and \t
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove control characters
+      
+      // Fix common JSON syntax issues
+      jsonString = jsonString
+        .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+        .replace(/([{,]\s*)(\w+)(\s*):/g, '$1"$2"$3:') // Quote unquoted keys
+        .trim();
         
-      console.log(`🧹 Cleaned JSON for ${model}:`, jsonString.substring(0, 300) + '...');
-
+      console.log(`🧹 Cleaned JSON for ${model}:`, jsonString.substring(0, 200) + '...');
+      
       let blogData: GeneratedPost;
       try {
-        blogData = JSON.parse(jsonString) as GeneratedPost;      } catch (parseError) {
+        blogData = JSON.parse(jsonString) as GeneratedPost;
+        console.log(`✅ Successfully parsed JSON for ${model}`);
+      } catch (parseError) {
         console.error(`JSON parse error for ${model}:`, parseError);
-        console.log(`📄 Attempting to create comprehensive fallback content for: ${randomTopic}`);
-          // Create a comprehensive fallback article with unified structure
-        const title = `${randomTopic}: Guide Complet pour les Développeurs`;
-        const content = `# ${title}
-
-## Introduction
-
-${randomTopic} représente aujourd'hui un enjeu majeur pour les équipes de développement modernes. Cette technologie/approche transforme la façon dont nous concevons, développons et déployons nos applications.
-
-Dans un contexte où l'innovation technologique s'accélère, maîtriser ${randomTopic} devient essentiel pour rester compétitif. Cet article vous guidera à travers les concepts clés, les bonnes pratiques et les stratégies d'implémentation éprouvées.
-
-Que vous soyez développeur expérimenté ou architecte technique, vous découvrirez des insights pratiques pour optimiser vos projets et améliorer la qualité de vos solutions.
-
-## Contexte et Enjeux Spécifiques
-
-### Défis techniques actuels
-
-L'adoption de ${randomTopic} répond à plusieurs problématiques critiques :
-
-- **Complexité croissante** des systèmes distribués
-- **Besoins de performance** et de scalabilité
-- **Exigences de sécurité** renforcées
-- **Time-to-market** accéléré
-
-### Impact sur les équipes
-
-${randomTopic} transforme les méthodes de travail en introduisant :
-
-1. **Nouvelles compétences** techniques requises
-2. **Processus** de développement optimisés
-3. **Collaboration** renforcée entre équipes
-4. **Monitoring** et observabilité améliorés
-
-## Concepts Fondamentaux
-
-### Définitions techniques
-
-${randomTopic} s'appuie sur plusieurs concepts essentiels :
-
-- **Architecture** : Principes de conception modulaire
-- **Patterns** : Modèles éprouvés pour ${randomTopic}
-- **Protocoles** : Standards de communication
-- **Outils** : Écosystème technologique dédié
-
-### Principes clés
-
-1. **Simplicité** : Privilégier les solutions éprouvées
-2. **Modularité** : Découpage en composants autonomes
-3. **Résilience** : Gestion proactive des pannes
-4. **Observabilité** : Monitoring en temps réel
-
-## Mise en Pratique Concrète
-
-### Configuration initiale
-
-\`\`\`javascript
-// Configuration de base pour ${randomTopic}
-const config = {
-  mode: 'production',
-  timeout: 5000,
-  retries: 3,
-  monitoring: true
-};
-
-// Initialisation
-async function initializeSystem() {
-  try {
-    await setupConfiguration(config);
-    console.log('${randomTopic} initialisé avec succès');
-  } catch (error) {
-    console.error('Erreur d\\'initialisation:', error);
-  }
-}
-\`\`\`
-
-### Étapes d'implémentation
-
-1. **Planification** : Analyse des besoins spécifiques
-2. **Prototypage** : Validation des concepts
-3. **Développement** : Implémentation incrémentale
-4. **Tests** : Validation fonctionnelle et performance
-5. **Déploiement** : Mise en production progressive
-
-## Bonnes Pratiques
-
-### Recommandations techniques
-
-- **Code Quality** : Standards de développement rigoureux
-- **Documentation** : Specifications techniques détaillées
-- **Testing** : Couverture de tests automatisés
-- **Security** : Audit de sécurité régulier
-
-### Erreurs courantes à éviter
-
-1. **Over-engineering** : Complexité excessive
-2. **Vendor lock-in** : Dépendance technologique
-3. **Monitoring insuffisant** : Observabilité limitée
-4. **Formation négligée** : Montée en compétences
-
-## Outils et Écosystème
-
-### Technologies recommandées
-
-- **Frameworks** : Solutions matures et maintenues
-- **Bibliothèques** : Composants réutilisables
-- **Monitoring** : Outils d'observabilité
-- **CI/CD** : Chaînes d'automatisation
-
-### Solutions du marché
-
-| Catégorie | Solutions | Avantages |
-|-----------|-----------|-----------|
-| Open Source | Solutions communautaires | Flexibilité, coût |
-| Enterprise | Plateformes commerciales | Support, fonctionnalités |
-| Cloud | Services managés | Scalabilité, maintenance |
-
-## Cas d'Usage Réels
-
-### Secteurs d'application
-
-${randomTopic} trouve des applications dans de nombreux domaines :
-
-- **E-commerce** : Optimisation des performances
-- **Fintech** : Sécurisation des transactions
-- **Healthcare** : Conformité réglementaire
-- **Gaming** : Expérience utilisateur temps réel
-
-### Retours d'expérience
-
-Les organisations ayant adopté ${randomTopic} rapportent :
-
-- **Amélioration de 40%** de la productivité développeur
-- **Réduction de 60%** des incidents production
-- **Accélération de 30%** du time-to-market
-- **Diminution de 50%** des coûts opérationnels
-
-## Perspectives d'Avenir
-
-### Évolutions prévues
-
-L'écosystème ${randomTopic} évolue vers :
-
-- **Intelligence Artificielle** : Automatisation intelligente
-- **Edge Computing** : Traitement distribué
-- **Sustainability** : Solutions éco-responsables
-- **Zero Trust** : Sécurité par design
-
-### Recommandations stratégiques
-
-Pour anticiper l'avenir :
-
-1. **Veille technologique** continue
-2. **Formation** des équipes
-3. **Expérimentation** contrôlée
-4. **Partenariats** technologiques
-
-## Conclusion
-
-${randomTopic} s'impose comme un pilier fondamental de l'architecture logicielle moderne. Son adoption nécessite une approche méthodique alliant expertise technique et vision stratégique.
-
-Les bénéfices à long terme justifient l'investissement initial en formation et infrastructure. Les équipes qui maîtrisent ${randomTopic} sont mieux positionnées pour relever les défis technologiques de demain.
-
-L'écosystème continuant d'évoluer rapidement, maintenir une veille active et expérimenter régulièrement restent essentiels pour tirer pleinement parti de ces technologies.`;
         
-        const excerpt = `Guide complet sur ${randomTopic} : concepts, implémentation et bonnes pratiques pour les développeurs.`;
-        
-        blogData = {
-          title,
-          content,
-          excerpt,
-          categories: [randomCategory],
-          tags: ["Développement", "Architecture", "Bonnes-Pratiques", "Guide", "Tech"]
-        };
+        // Advanced JSON repair attempt
+        try {
+          const repairedJson = repairBrokenJSON(jsonString);
+          blogData = JSON.parse(repairedJson) as GeneratedPost;
+          console.log(`✅ Repaired and parsed JSON for ${model}`);
+        } catch (repairError) {
+          console.error(`JSON repair failed for ${model}:`, repairError);
+          console.error(`Raw response causing parse error:`, response.substring(0, 1000) + '...');
+          continue; // Try next model
+        }
       }
       
       // Validate the response structure
@@ -377,7 +230,8 @@ L'écosystème continuant d'évoluer rapidement, maintenir une veille active et 
       // Ensure categories and tags are arrays
       if (!Array.isArray(blogData.categories)) {
         blogData.categories = [randomCategory];
-      }      if (!Array.isArray(blogData.tags)) {
+      }
+      if (!Array.isArray(blogData.tags)) {
         blogData.tags = ["Développement", "Tech", "Innovation"];
       }
 
@@ -392,4 +246,107 @@ L'écosystème continuant d'évoluer rapidement, maintenir une veille active et 
 
   // If all models fail, throw error
   throw new Error('Failed to generate blog content with any available model');
+}
+
+/**
+ * Helper function to fix multiline strings within JSON
+ * Properly escapes newlines that appear inside string values
+ */
+function fixMultilineStringsInJSON(jsonString: string): string {
+  // This regex finds string values that contain unescaped newlines
+  // and properly escapes them while preserving the JSON structure
+  let fixed = jsonString;
+  
+  // Split by lines and process each line to handle multiline strings
+  const lines = fixed.split('\n');
+  let insideString = false;
+  let stringDelimiter = '';
+  let result: string[] = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    let processedLine = '';
+    
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const prevChar = j > 0 ? line[j - 1] : '';
+      
+      if (!insideString) {
+        if (char === '"' && prevChar !== '\\') {
+          insideString = true;
+          stringDelimiter = char;
+        }
+        processedLine += char;
+      } else {
+        if (char === stringDelimiter && prevChar !== '\\') {
+          insideString = false;
+          stringDelimiter = '';
+        }
+        processedLine += char;
+      }
+    }
+    
+    // If we're inside a string and this line ends, we need to escape the newline
+    if (insideString && i < lines.length - 1) {
+      processedLine += '\\n';
+    } else {
+      result.push(processedLine);
+    }
+    
+    if (!insideString) {
+      result.push(processedLine);
+    }
+  }
+  
+  return result.join('\n');
+}
+
+/**
+ * Advanced JSON repair function for common syntax issues
+ */
+function repairBrokenJSON(jsonString: string): string {
+  let repaired = jsonString;
+  
+  try {
+    // Step 1: Fix unescaped newlines in string values
+    repaired = repaired.replace(/"([^"]*)\n([^"]*)"(?=\s*[,\]}])/g, (match, before, after) => {
+      return `"${before}\\n${after}"`;
+    });
+    
+    // Step 2: Fix unescaped quotes within string values
+    repaired = repaired.replace(/"([^"]*)"([^"]*)"([^"]*)"(?=\s*[,\]}])/g, '"$1\\"$2\\"$3"');
+    
+    // Step 3: Fix unescaped tabs and other whitespace
+    repaired = repaired.replace(/\t/g, '\\t');
+    
+    // Step 4: Fix multiline string values that span multiple lines
+    repaired = repaired.replace(/"([^"]*(?:\n[^"]*)*)"(?=\s*[,\]}])/g, (match, content) => {
+      const escapedContent = content
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/\t/g, '\\t')
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
+      return `"${escapedContent}"`;
+    });
+    
+    // Step 5: Remove any remaining control characters
+    repaired = repaired.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    
+    // Step 6: Fix trailing commas
+    repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+    
+    // Step 7: Ensure proper JSON structure
+    if (!repaired.trim().startsWith('{')) {
+      repaired = '{' + repaired;
+    }
+    if (!repaired.trim().endsWith('}')) {
+      repaired = repaired + '}';
+    }
+    
+    return repaired;
+  } catch (error) {
+    console.error('Error in repairBrokenJSON:', error);
+    return jsonString; // Return original if repair fails
+  }
 }
