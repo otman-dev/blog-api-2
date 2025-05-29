@@ -40,18 +40,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     setLoading(false);
   }, []);
-
   // Protection for authenticated routes
   useEffect(() => {
     if (!loading) {
-      // If not authenticated and not on login page, redirect to login
-      if (!token && pathname !== '/login') {
+      // Define public routes that don't require authentication
+      const publicRoutes = ['/', '/login'];
+      const isPublicRoute = publicRoutes.includes(pathname);
+      
+      // If not authenticated and not on a public route, redirect to login
+      if (!token && !isPublicRoute) {
         router.push('/login');
       }
       
       // If authenticated and on login page, redirect to dashboard
       if (token && pathname === '/login') {
-        router.push('/');
+        router.push('/dashboard');
       }
     }
   }, [loading, token, pathname, router]);

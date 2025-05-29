@@ -24,13 +24,12 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-        if (data.success) {
+      const data = await response.json();      if (data.success) {
         // Use the AuthProvider login method
         login(data.data.token, data.data.user);
         
-        // Redirect to dashboard will be handled by AuthProvider
-        router.refresh();
+        // Redirect to dashboard after successful login
+        router.push('/dashboard');
       } else {
         setError(data.message || 'Failed to login. Please check your credentials.');
       }

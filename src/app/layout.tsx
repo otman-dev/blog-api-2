@@ -7,7 +7,7 @@ import { AuthProvider } from '@/components/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Groq Blog Generator',
+  title: 'AI Auto Blog Generator',
   description: 'AI-powered blog generation using Groq API',
 }
 
