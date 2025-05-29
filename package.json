@@ -7,9 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "14.0.4",
+  },  "dependencies": {
+    "next": "15.2.4",
     "react": "^18",
     "react-dom": "^18",
     "mongoose": "^8.0.3",
@@ -24,6 +23,6 @@
   },
   "devDependencies": {
     "eslint": "^8",
-    "eslint-config-next": "14.0.4"
+    "eslint-config-next": "15.2.4"
   }
 }

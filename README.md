@@ -1,21 +1,33 @@
-# Groq AI Blog Generator
+# IT/Software Engineering Blog Generator
 
-Un système automatisé de génération d'articles de blog utilisant l'API Groq et MongoDB.
+Un système automatisé de génération d'articles de blog techniques utilisant l'API Groq et MongoDB.
 
 ## Fonctionnalités
 
-- ✅ Génération automatique d'articles toutes les 3 minutes
-- ✅ Intégration avec l'API Groq pour l'IA générative
+- ✅ Génération automatique d'articles toutes les 10 minutes
+- ✅ Intégration avec l'API Groq pour l'IA générative  
 - ✅ Stockage dans MongoDB (collection: posts)
-- ✅ Sujets spécialisés en construction durable et éco-bâtiment
+- ✅ Sujets spécialisés en IT, développement logiciel et ingénierie
 - ✅ Interface de contrôle pour démarrer/arrêter la génération
 - ✅ API REST complète pour la gestion des posts
+- ✅ Gestion des slugs uniques avec timestamps
+- ✅ Retry logic pour les erreurs de base de données
 
-## Configuration
+## Déploiement sur Vercel
 
 ### 1. Variables d'environnement
 
-Modifiez le fichier `.env.local` :
+Dans votre dashboard Vercel, ajoutez ces variables d'environnement :
+
+```
+MONGODB_URI=mongodb://username:password@host:port/database?authSource=admin
+GROQ_API_KEY=your_groq_api_key_here
+NEXTAUTH_SECRET=your_random_secret_here
+```
+
+### 2. Configuration
+
+Copiez `.env.example` vers `.env.local` pour le développement local :
 
 ```bash
 MONGODB_URI=mongodb://rasmus:wordpiss@adro.ddns.net:27017/otman-blog
