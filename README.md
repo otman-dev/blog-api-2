@@ -12,6 +12,8 @@ Un système automatisé de génération d'articles de blog techniques utilisant 
 - ✅ API REST complète pour la gestion des posts
 - ✅ Gestion des slugs uniques avec timestamps
 - ✅ Retry logic pour les erreurs de base de données
+- ✅ Authentification JWT pour le tableau de bord
+- ✅ Authentification par clé API pour les tâches cron
 
 ## Déploiement sur Vercel
 
@@ -21,8 +23,10 @@ Dans votre dashboard Vercel, ajoutez ces variables d'environnement :
 
 ```
 MONGODB_URI=mongodb://username:password@host:port/database?authSource=admin
+MONGODB_ADMIN_URI=mongodb://username:password@host:port/blog-api?authSource=admin
 GROQ_API_KEY=your_groq_api_key_here
-NEXTAUTH_SECRET=your_random_secret_here
+JWT_SECRET=your_random_secret_here
+CRON_API_KEY=your_generated_api_key_for_cron_jobs
 ```
 
 ### 2. Configuration
@@ -31,16 +35,36 @@ Copiez `.env.example` vers `.env.local` pour le développement local :
 
 ```bash
 MONGODB_URI=mongodb://rasmus:wordpiss@adro.ddns.net:27017/otman-blog
+MONGODB_ADMIN_URI=mongodb://rasmus:wordpiss@adro.ddns.net:27017/blog-api
 GROQ_API_KEY=votre_clé_api_groq_ici
+JWT_SECRET=votre_secret_jwt_ici
+CRON_API_KEY=votre_clé_api_pour_cron_ici
 ```
 
-### 2. Installation
+### 3. Génération d'une clé API pour les tâches cron
+
+Exécutez le script pour générer une clé API sécurisée pour les tâches cron :
+
+```bash
+node scripts/generate-api-key.js
+```
+
+Ajoutez cette clé à vos variables d'environnement (localement et sur Vercel).
+
+### 4. Configuration du cron job
+
+Pour configurer un cron job externe (comme cron.org) :
+
+- URL: `https://votre-app.vercel.app/api/cron-secure?key=VOTRE_CLE_API`
+- OU ajoutez l'en-tête: `x-api-key: VOTRE_CLE_API`
+
+### 5. Installation
 
 ```bash
 npm install
 ```
 
-### 3. Démarrage
+### 6. Démarrage
 
 ```bash
 npm run dev
