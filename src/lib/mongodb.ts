@@ -24,33 +24,11 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function dbConnect() {
-  if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null };
-  }
-
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
-  }
-
-  try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
-
-  return cached.conn;
+// This function now uses the new contentDb connection
+// and is maintained for backwards compatibility
+async function mongodbConnect() {
+  console.log('⚠️ Warning: Using deprecated mongodb.ts, consider switching to db/contentDb.ts');
+  return dbConnect();
 }
 
-export default dbConnect;
+export default mongodbConnect;

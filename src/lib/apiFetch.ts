@@ -41,11 +41,8 @@ export async function apiFetch<T = any>(
 
   // Parse the JSON response
   const data = await response.json();
-  
-  // If the response was not successful, throw an error
-  if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
-  }
-  
+    // Return data even if response is not "ok"
+  // The API might return success: false with a message
+  // and we want to handle that in the component
   return data;
 }

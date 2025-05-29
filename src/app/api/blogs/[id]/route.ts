@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import Blog from '@/models/Blog';
+import getBlogModel from '@/models/Blog';
+import { requireAuth } from '@/lib/middleware';
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    await dbConnect();
     const { id } = await context.params;
+    const Blog = await getBlogModel();
     const blog = await Blog.findById(id);
     
     if (!blog) {
@@ -36,11 +36,21 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Check authentication before proceeding
+    try {
+      await requireAuth(request);
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { title, content, excerpt, tags, published } = body;
     
-    await dbConnect();
     const { id } = await context.params;
+    const Blog = await getBlogModel();
     const blog = await Blog.findByIdAndUpdate(
       id,
       {
@@ -48,9 +58,9 @@ export async function PUT(
         content,
         excerpt,
         tags: tags || [],
-        published: published || false
+        published: published !== undefined ? published : true,
       },
-      { new: true, runValidators: true }
+      { new: true }
     );
     
     if (!blog) {
@@ -78,8 +88,18 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    await dbConnect();
+    // Check authentication before proceeding
+    try {
+      await requireAuth(request);
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    
     const { id } = await context.params;
+    const Blog = await getBlogModel();
     const blog = await Blog.findByIdAndDelete(id);
     
     if (!blog) {

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import Post from '@/models/Blog';
+import getBlogModel from '@/models/Blog';
 import { generateRandomPost } from '@/lib/groqWithMinimalPrompts';
 import { requireAuth } from '@/lib/middleware';
 
 export async function GET() {
   try {
-    await dbConnect();
+    const Post = await getBlogModel();
     const posts = await Post.find({ published: true }).sort({ createdAt: -1 });
     
     return NextResponse.json({
@@ -41,8 +40,8 @@ export async function POST(request: NextRequest) {
       // Generate post content using Groq
       const generatedPost = await generateRandomPost();
       
-      // Connect to database and save the generated post
-      await dbConnect();
+      // Get blog model and save the generated post
+      const Post = await getBlogModel();
       const post = new Post({
         title: generatedPost.title,
         content: generatedPost.content,
@@ -66,7 +65,7 @@ export async function POST(request: NextRequest) {
       // Direct post creation
       const { title, content, excerpt, categories, tags, published, status } = body;
       
-      await dbConnect();
+      const Post = await getBlogModel();
       const post = new Post({
         title,
         content,

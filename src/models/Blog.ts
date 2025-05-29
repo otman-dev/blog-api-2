@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import dbConnect from '@/lib/db/contentDb';
 
 export interface IPost extends mongoose.Document {
   _id: mongoose.Types.ObjectId;
@@ -98,4 +99,10 @@ PostSchema.pre('save', function(next) {
   next();
 });
 
-export default mongoose.models.Post || mongoose.model<IPost>('Post', PostSchema);
+// Get model from content database connection
+const getBlogModel = async () => {
+  const connection = await dbConnect();
+  return connection.models.Post || connection.model<IPost>('Post', PostSchema);
+};
+
+export default getBlogModel;

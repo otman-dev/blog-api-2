@@ -1,4 +1,4 @@
-import dbConnect from './mongodb';
+import dbConnect from './db/contentDb';
 import Post from '@/models/Blog';
 import { generateRandomPost } from './groqWithMinimalPrompts';
 import { getAutomationState, setAutomationState, incrementPostCount } from '../models/AutomationState';
