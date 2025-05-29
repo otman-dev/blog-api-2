@@ -9,7 +9,12 @@ const ADMIN_PASSWORD = 'adminSecret123';
 const ADMIN_NAME = 'Admin User';
 
 // MongoDB connection string for users (different from blog content)
-const MONGODB_URI = 'mongodb://rasmus:wordpiss@adro.ddns.net:27017/blog-api?authSource=admin';
+const MONGODB_URI = process.env.MONGODB_ADMIN_URI;
+
+if (!MONGODB_URI) {
+  console.error('Error: MONGODB_ADMIN_URI environment variable is not set');
+  process.exit(1);
+}
 
 // Hash password
 async function hashPassword(password) {

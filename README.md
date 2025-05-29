@@ -34,8 +34,8 @@ CRON_API_KEY=your_generated_api_key_for_cron_jobs
 Copiez `.env.example` vers `.env.local` pour le développement local :
 
 ```bash
-MONGODB_URI=mongodb://rasmus:wordpiss@adro.ddns.net:27017/otman-blog
-MONGODB_ADMIN_URI=mongodb://rasmus:wordpiss@adro.ddns.net:27017/blog-api
+MONGODB_URI=mongodb://username:password@host:port/database
+MONGODB_ADMIN_URI=mongodb://username:password@host:port/database
 GROQ_API_KEY=votre_clé_api_groq_ici
 JWT_SECRET=votre_secret_jwt_ici
 CRON_API_KEY=votre_clé_api_pour_cron_ici

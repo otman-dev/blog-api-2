@@ -7,10 +7,10 @@ declare global {
   };
 }
 
-const MONGODB_ADMIN_URI = process.env.MONGODB_ADMIN_URI || 'mongodb://rasmus:wordpiss@adro.ddns.net:27017/blog-api?authSource=admin';
+const MONGODB_ADMIN_URI = process.env.MONGODB_ADMIN_URI!;
 
 if (!MONGODB_ADMIN_URI) {
-  console.warn('MONGODB_ADMIN_URI not defined, using default connection');
+  throw new Error('Please define the MONGODB_ADMIN_URI environment variable');
 }
 
 /**
