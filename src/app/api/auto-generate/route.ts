@@ -7,16 +7,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, intervalMinutes } = body;
 
-    switch (action) {
+    switch (action) {      
       case 'start':
-        autoService.startAutoGeneration(intervalMinutes || 3);
+        await autoService.startAutoGeneration(intervalMinutes || 10);
         return NextResponse.json({
           success: true,
-          message: `Automatic post generation started every ${intervalMinutes || 3} minutes`
+          message: `Automatic post generation started every ${intervalMinutes || 10} minutes`
         });
 
       case 'stop':
-        autoService.stopAutoGeneration();
+        await autoService.stopAutoGeneration();
         return NextResponse.json({
           success: true,
           message: 'Automatic post generation stopped'
@@ -28,6 +28,22 @@ export async function POST(request: NextRequest) {
           success: true,
           message: 'New post generated successfully'
         });
+
+      case 'cron-generate':
+        // Special action for cron services - checks database state first
+        const status = await autoService.getStatus();
+        if (status.isRunning) {
+          await autoService.createAutomaticPost();
+          return NextResponse.json({
+            success: true,
+            message: 'Cron: New post generated'
+          });
+        } else {
+          return NextResponse.json({
+            success: true,
+            message: 'Cron: Automation is disabled, no post generated'
+          });
+        }
 
       default:
         return NextResponse.json(
@@ -47,7 +63,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const autoService = AutoPostService.getInstance();
-    const status = autoService.getStatus();
+    const status = await autoService.getStatus();
     
     return NextResponse.json({
       success: true,

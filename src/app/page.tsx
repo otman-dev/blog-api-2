@@ -23,19 +23,18 @@ export default function HomePage() {
       console.error('Error fetching posts:', error);
     }
   };
-
   const checkGenerationStatus = async () => {
     try {
-      const response = await fetch('/api/auto-generate');
+      const response = await fetch('/api/automation-state');
       const data = await response.json();
       if (data.success) {
-        setIsGenerating(data.data.isRunning);
+        setIsGenerating(data.data.isActive);
+        console.log('✅ Loaded automation state from database:', data.data.isActive);
       }
     } catch (error) {
-      console.error('Error checking status:', error);
+      console.error('Error checking automation state:', error);
     }
   };
-
   const handleAutoGeneration = async (action: string) => {
     setLoading(true);
     try {
@@ -51,7 +50,8 @@ export default function HomePage() {
 
       const data = await response.json();
       if (data.success) {
-        setIsGenerating(action === 'start');
+        // Refresh the state from database instead of assuming the action result
+        await checkGenerationStatus();
         alert(data.message);
         if (action === 'generate-now') {
           setTimeout(fetchPosts, 2000); // Refresh posts after generation

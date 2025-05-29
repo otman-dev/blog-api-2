@@ -1,12 +1,12 @@
 import dbConnect from './mongodb';
 import Post from '@/models/Blog';
 import { generateRandomPost } from './groq';
+import { getAutomationState, setAutomationState, incrementPostCount } from '../models/AutomationState';
 
 export class AutoPostService {
   private static instance: AutoPostService;
   private intervalId: NodeJS.Timeout | null = null;
-  private isRunning: boolean = false;
-
+  
   private constructor() {}
 
   public static getInstance(): AutoPostService {
@@ -14,6 +14,16 @@ export class AutoPostService {
       AutoPostService.instance = new AutoPostService();
     }
     return AutoPostService.instance;
+  }
+
+  public async isRunning(): Promise<boolean> {
+    try {
+      const state = await getAutomationState();
+      return state.isActive;
+    } catch (error) {
+      console.error('Error checking automation state:', error);
+      return false;
+    }
   }
   public async createAutomaticPost(): Promise<void> {
     try {
@@ -44,13 +54,15 @@ export class AutoPostService {
           });
           
           const savedPost = await post.save();
-          
-          console.log('✅ New post created successfully:', {
+            console.log('✅ New post created successfully:', {
             id: savedPost._id,
             title: savedPost.title,
             slug: savedPost.slug,
             publishedAt: savedPost.publishedAt
           });
+
+          // Increment the post count in the database
+          await incrementPostCount();
           
           return; // Success, exit the function
           
@@ -74,37 +86,56 @@ export class AutoPostService {
       console.error('❌ Error creating automatic post:', error);
     }
   }
-
-  public startAutoGeneration(intervalMinutes: number = 10): void {
-    if (this.isRunning) {
+  public async startAutoGeneration(intervalMinutes: number = 10): Promise<void> {
+    const currentlyRunning = await this.isRunning();
+    if (currentlyRunning) {
       console.log('⚠️ Auto generation is already running');
       return;
     }
 
     console.log(`🚀 Starting automatic post generation every ${intervalMinutes} minutes`);
     
+    // Set state to active in database
+    await setAutomationState(true);
+    
     // Create first post immediately
     this.createAutomaticPost();
     
     // Set up interval for subsequent posts
-    this.intervalId = setInterval(() => {
-      this.createAutomaticPost();
+    this.intervalId = setInterval(async () => {
+      // Check if still active before generating
+      const isActive = await this.isRunning();
+      if (isActive) {
+        this.createAutomaticPost();
+      } else {
+        // If deactivated, stop the interval
+        this.stopAutoGeneration();
+      }
     }, intervalMinutes * 60 * 1000); // Convert minutes to milliseconds
-    
-    this.isRunning = true;
   }
 
-  public stopAutoGeneration(): void {
+  public async stopAutoGeneration(): Promise<void> {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
-      this.isRunning = false;
       console.log('🛑 Automatic post generation stopped');
     }
+    
+    // Set state to inactive in database
+    await setAutomationState(false);
   }
-
-  public getStatus(): { isRunning: boolean } {
-    return { isRunning: this.isRunning };
+  public async getStatus(): Promise<{ isRunning: boolean; totalPosts?: number; lastGenerated?: Date }> {
+    try {
+      const state = await getAutomationState();
+      return { 
+        isRunning: state.isActive,
+        totalPosts: state.totalPostsGenerated,
+        lastGenerated: state.lastPostGenerated || undefined
+      };
+    } catch (error) {
+      console.error('Error getting status:', error);
+      return { isRunning: false };
+    }
   }
 }
 

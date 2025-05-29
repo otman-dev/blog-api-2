@@ -1,0 +1,17 @@
+name: Auto Blog Generation
+
+on:
+  schedule:
+    # Runs every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  generate-post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call blog generation API
+        run: |
+          curl -X POST https://your-domain.vercel.app/api/cron \
+            -H "Content-Type: application/json" \
+            -d '{}'
