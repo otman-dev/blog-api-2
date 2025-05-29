@@ -4,11 +4,12 @@ import Blog from '@/models/Blog';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const blog = await Blog.findById(params.id);
+    const { id } = await context.params;
+    const blog = await Blog.findById(id);
     
     if (!blog) {
       return NextResponse.json(
@@ -32,15 +33,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
     const { title, content, excerpt, tags, published } = body;
     
     await dbConnect();
+    const { id } = await context.params;
     const blog = await Blog.findByIdAndUpdate(
-      params.id,
+      id,
       {
         title,
         content,
@@ -73,11 +75,12 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const blog = await Blog.findByIdAndDelete(params.id);
+    const { id } = await context.params;
+    const blog = await Blog.findByIdAndDelete(id);
     
     if (!blog) {
       return NextResponse.json(
