@@ -53,9 +53,23 @@ export class KnowledgeBaseLoader {
 
   public getTopics(): Topic[] {
     if (!this.topics) {
+      // Load main topics
       const topicsPath = join(this.knowledgeBasePath, 'topics', 'tech-topics.json');
       const topicsData = readFileSync(topicsPath, 'utf-8');
-      this.topics = JSON.parse(topicsData);
+      const mainTopics = JSON.parse(topicsData);
+      
+      // Load supplemental topics if available
+      try {
+        const supplementalTopicsPath = join(this.knowledgeBasePath, 'topics', 'supplemental-topics.json');
+        const supplementalTopicsData = readFileSync(supplementalTopicsPath, 'utf-8');
+        const supplementalTopics = JSON.parse(supplementalTopicsData);
+        
+        // Combine topics from both files
+        this.topics = [...mainTopics, ...supplementalTopics];
+      } catch (error) {
+        // If supplemental topics file doesn't exist or is empty, just use main topics
+        this.topics = mainTopics;
+      }
     }
     return this.topics!;
   }
