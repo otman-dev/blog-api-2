@@ -3,6 +3,7 @@ import getBlogModel from '@/models/Blog';
 import { generateRandomPost } from './groqWithMinimalPrompts';
 import { getAutomationState, setAutomationState, incrementPostCount } from '../models/AutomationState';
 import { CategoryService } from './categoryService';
+import { TagService } from './tagService';
 
 export class AutoPostService {
   private static instance: AutoPostService;
@@ -34,10 +35,13 @@ export class AutoPostService {
       
       // Connect to database and get blog model
       const BlogModel = await getBlogModel();
-      
-      // Ensure all categories exist in the database
+        // Ensure all categories exist in the database
       const categoryService = CategoryService.getInstance();
       const categoryIds = await categoryService.ensureCategoriesExist(generatedPost.categories);
+      
+      // Ensure all tags exist in the database
+      const tagService = TagService.getInstance();
+      await tagService.ensureTagsExist(generatedPost.tags);
       
       // Create and save the post with retry logic for duplicate slugs
       let attempts = 0;

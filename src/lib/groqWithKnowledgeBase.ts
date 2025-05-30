@@ -1,6 +1,7 @@
 import Groq from 'groq-sdk';
 import { KnowledgeBaseService, GenerationOptions } from './knowledgeBase';
 import { CategoryService } from './categoryService';
+import { TagService } from './tagService';
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -72,10 +73,13 @@ export async function generatePostWithKnowledgeBase(
       } else {
         blogData.categories = [config.category.name];
       }
-      
-      // Ensure all categories exist in the database
+        // Ensure all categories exist in the database
       const categoryService = CategoryService.getInstance();
       await categoryService.ensureCategoriesExist(blogData.categories);
+      
+      // Ensure all tags exist in the database
+      const tagService = TagService.getInstance();
+      await tagService.ensureTagsExist(blogData.tags);
       
       console.log(`✅ Successfully generated post with model: ${model.name}`);
       return blogData;

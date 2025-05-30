@@ -3,6 +3,7 @@ import getBlogModel from '@/models/Blog';
 import { generateRandomPost } from '@/lib/groqWithMinimalPrompts';
 import { requireAuth } from '@/lib/middleware';
 import { CategoryService } from '@/lib/categoryService';
+import { TagService } from '@/lib/tagService';
 
 export async function GET() {
   try {
@@ -39,10 +40,13 @@ export async function POST(request: NextRequest) {
     if (body.generateWithGroq) {
       // Generate post content using Groq
       const generatedPost = await generateRandomPost();
-      
-      // Ensure categories exist in database
+        // Ensure categories exist in database
       const categoryService = CategoryService.getInstance();
       await categoryService.ensureCategoriesExist(generatedPost.categories);
+      
+      // Ensure tags exist in database
+      const tagService = TagService.getInstance();
+      await tagService.ensureTagsExist(generatedPost.tags);
       
       // Get blog model and save the generated post
       const Post = await getBlogModel();
@@ -71,11 +75,16 @@ export async function POST(request: NextRequest) {
       const tags = body.tags || [];
       const status = body.status || 'published';
       const published = body.published !== undefined ? body.published : true;
-      
-      // Ensure categories exist in database if provided
+        // Ensure categories exist in database if provided
       if (categories.length > 0) {
         const categoryService = CategoryService.getInstance();
         await categoryService.ensureCategoriesExist(categories);
+      }
+      
+      // Ensure tags exist in database if provided
+      if (tags.length > 0) {
+        const tagService = TagService.getInstance();
+        await tagService.ensureTagsExist(tags);
       }
       
       const Post = await getBlogModel();
