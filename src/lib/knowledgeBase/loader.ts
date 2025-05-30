@@ -106,7 +106,12 @@ export class KnowledgeBaseLoader {
       throw new Error(`Category not found: ${categoryId}`);
     }
 
-    return topics.filter(topic => topic.category === category.name);
+    return topics.filter(topic => 
+      topic.category === category.name || 
+      // Also match if the category ID in the category list matches the topic's category with spaces removed and lowercased
+      category.name.toLowerCase().replace(/\s+/g, '-').includes(topic.category.toLowerCase().replace(/\s+/g, '-')) ||
+      topic.category.toLowerCase().replace(/\s+/g, '-').includes(category.name.toLowerCase().replace(/\s+/g, '-'))
+    );
   }
 
   public getCategoryById(categoryId: string): Category {
