@@ -112,10 +112,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Groq AI Blog Generator
+          AI Blog Generator
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Système automatisé de génération d'articles sur la construction durable et l'éco-bâtiment
+          Système automatisé de génération d'articles
         </p>
       </div>
 
