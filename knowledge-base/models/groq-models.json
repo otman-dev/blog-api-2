@@ -1,4 +1,14 @@
-[
+[ 
+  {
+    "id": "deepseek-r1",
+    "name": "deepseek-r1-distill-llama-70b",
+    "priority": 4,
+    "tokensPerMinute": 6000,
+    "dailyLimit": "none",
+    "bestFor": ["technical reasoning", "problem solving", "debugging content"],
+    "temperature": 0.7,
+    "maxTokens": 8000
+  },
   {
     "id": "llama-4-scout",
     "name": "meta-llama/llama-4-scout-17b-16e-instruct",
@@ -29,16 +39,7 @@
     "temperature": 0.7,
     "maxTokens": 8000
   },
-  {
-    "id": "deepseek-r1",
-    "name": "deepseek-r1-distill-llama-70b",
-    "priority": 4,
-    "tokensPerMinute": 6000,
-    "dailyLimit": "none",
-    "bestFor": ["technical reasoning", "problem solving", "debugging content"],
-    "temperature": 0.7,
-    "maxTokens": 8000
-  },
+  
   {
     "id": "compound-beta",
     "name": "compound-beta",
