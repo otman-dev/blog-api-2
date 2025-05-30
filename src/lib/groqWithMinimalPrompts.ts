@@ -9,6 +9,7 @@ export interface PostGenerationRequest {
   topic?: string;
   category?: string;
   options?: GenerationOptions;
+  useNarrativeTemplates?: boolean; // New option to control narrative templates
 }
 
 export interface GeneratedPost {
@@ -17,24 +18,36 @@ export interface GeneratedPost {
   excerpt: string;
   categories: string[];
   tags: string[];
+  narrativeType?: string; // Track which narrative type was used
+  humanElements?: string[]; // Track human elements included
 }
 
 /**
- * Enhanced blog post generation using Knowledge Base system with minimal hardcoding
- * This uses the pure metadata-driven approach with zero hardcoded templates
+ * Enhanced blog post generation using Knowledge Base system with narrative templates
+ * This uses the narrative-enhanced approach for more human-like storytelling
  */
 export async function generatePostWithKnowledgeBase(
   request: PostGenerationRequest = {}
 ): Promise<GeneratedPost> {
   const knowledgeBase = KnowledgeBaseService.getInstance();
-    // Generate prompt configuration using knowledge base with minimal hardcoding
-  // This uses the pure metadata-driven approach with zero hardcoded templates
-  const config = await knowledgeBase.generateMinimalHardcodedPrompt(request.options);
+
+  // Enable narrative templates by default unless explicitly disabled
+  const useNarrativeTemplates = request.useNarrativeTemplates !== false;
+  
+  // Enhance options with narrative template preference
+  const enhancedOptions = {
+    ...request.options,
+    useNarrativeTemplates
+  };
+
+  // Generate prompt configuration using knowledge base with narrative enhancement
+  const config = await knowledgeBase.generateMinimalHardcodedPrompt(enhancedOptions);
   
   console.log(`🎯 Selected topic: ${config.topic.topic}`);
   console.log(`📁 Category: ${config.category.name}`);
   console.log(`⏱️  Expected time: ${config.topic.timeToComplete}`);
   console.log(`🎛️  Difficulty: ${config.topic.difficulty}`);
+  console.log(`📖 Using narrative templates: ${useNarrativeTemplates ? '✅' : '❌'}`);
 
   // Try models in priority order
   for (const model of config.models) {
@@ -70,14 +83,20 @@ export async function generatePostWithKnowledgeBase(
       // Validate the response structure
       if (!blogData.title || !blogData.content || !blogData.excerpt) {
         throw new Error(`Invalid response structure from model ${model.name}`);
-      }
-
-      // Ensure categories and tags are arrays
+      }      // Ensure categories and tags are arrays
       if (!Array.isArray(blogData.categories)) {
         blogData.categories = [config.category.name];
       }
       if (!Array.isArray(blogData.tags)) {
         blogData.tags = config.topic.keywords.concat(["tutorial", "practical"]);
+      }
+
+      // Add narrative metadata if available
+      if (useNarrativeTemplates && blogData.narrativeType) {
+        console.log(`📖 Narrative type used: ${blogData.narrativeType}`);
+      }
+      if (useNarrativeTemplates && blogData.humanElements) {
+        console.log(`👥 Human elements: ${blogData.humanElements.length} elements`);
       }
 
       console.log(`✅ Successfully generated post with model: ${model.name}`);
@@ -101,6 +120,36 @@ export async function generatePostWithKnowledgeBase(
  */
 export async function generateRandomPost(): Promise<GeneratedPost> {
   return generatePostWithKnowledgeBase({});
+}
+
+/**
+ * Generate a blog post with specific narrative template for testing
+ */
+export async function generatePostWithNarrativeTemplate(
+  narrativeTemplateId: string,
+  options: GenerationOptions = {}
+): Promise<GeneratedPost> {
+  return generatePostWithKnowledgeBase({
+    options: {
+      ...options,
+      narrativeTemplateId,
+      useNarrativeTemplates: true
+    },
+    useNarrativeTemplates: true
+  });
+}
+
+/**
+ * Generate a traditional blog post without narrative templates (for comparison)
+ */
+export async function generateTraditionalPost(options: GenerationOptions = {}): Promise<GeneratedPost> {
+  return generatePostWithKnowledgeBase({
+    options: {
+      ...options,
+      useNarrativeTemplates: false
+    },
+    useNarrativeTemplates: false
+  });
 }
 
 /**

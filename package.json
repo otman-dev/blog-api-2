@@ -1,12 +1,15 @@
 {
   "name": "nextjs-groq-blog",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {    "dev": "next dev",
+  "private": true,  "scripts": {
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed:admin": "node scripts/seed-admin.js"
+    "seed:admin": "node scripts/seed-admin.js",
+    "seed:narrative": "node scripts/seed-narrative-templates.js",
+    "test:narrative": "node test-narrative-templates.js",
+    "demo:narrative": "node test-narrative-generation.js"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
