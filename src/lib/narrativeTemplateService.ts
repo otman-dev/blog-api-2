@@ -721,4 +721,13 @@ export class NarrativeTemplateService {
   }
 }
 
+// Export convenience functions for direct use
+const narrativeTemplateService = NarrativeTemplateService.getInstance();
+
+export const getNarrativeTemplates = () => narrativeTemplateService.getAllTemplates();
+export const getNarrativeTemplateById = (id: string) => narrativeTemplateService.getTemplateById(id);
+export const createNarrativeTemplate = (data: Partial<INarrativeTemplate>) => narrativeTemplateService.createTemplate(data);
+export const updateNarrativeTemplate = (id: string, data: Partial<INarrativeTemplate>) => narrativeTemplateService.updateTemplate(id, data);
+export const deleteNarrativeTemplate = (id: string) => narrativeTemplateService.deactivateTemplate(id);
+
 export default NarrativeTemplateService;

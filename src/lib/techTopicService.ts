@@ -93,4 +93,68 @@ export class TechTopicService {
       throw error;
     }
   }
+
+  /**
+   * Create a new tech topic
+   * @param topicData The topic data
+   * @returns The created topic
+   */
+  public async createTopic(topicData: Partial<ITechTopic>): Promise<ITechTopic> {
+    try {
+      await dbConnect();
+      const TechTopicModel = await getTechTopicModel();
+      const topic = new TechTopicModel(topicData);
+      return await topic.save();
+    } catch (error) {
+      console.error('❌ Error creating tech topic:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update a tech topic
+   * @param topicId The topic ID
+   * @param updateData The data to update
+   * @returns The updated topic
+   */
+  public async updateTopic(topicId: string, updateData: Partial<ITechTopic>): Promise<ITechTopic | null> {
+    try {
+      await dbConnect();
+      const TechTopicModel = await getTechTopicModel();
+      return await TechTopicModel.findOneAndUpdate(
+        { id: topicId },
+        updateData,
+        { new: true }
+      ).lean();
+    } catch (error) {
+      console.error(`❌ Error updating tech topic ${topicId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a tech topic
+   * @param topicId The topic ID
+   * @returns Success boolean
+   */
+  public async deleteTopic(topicId: string): Promise<boolean> {
+    try {
+      await dbConnect();
+      const TechTopicModel = await getTechTopicModel();
+      const result = await TechTopicModel.deleteOne({ id: topicId });
+      return result.deletedCount > 0;
+    } catch (error) {
+      console.error(`❌ Error deleting tech topic ${topicId}:`, error);
+      throw error;
+    }
+  }
 }
+
+// Export convenience functions for direct use
+const techTopicService = TechTopicService.getInstance();
+
+export const getTechTopics = () => techTopicService.getAllTopics();
+export const getTechTopicById = (id: string) => techTopicService.getTopicById(id);
+export const createTechTopic = (data: Partial<ITechTopic>) => techTopicService.createTopic(data);
+export const updateTechTopic = (id: string, data: Partial<ITechTopic>) => techTopicService.updateTopic(id, data);
+export const deleteTechTopic = (id: string) => techTopicService.deleteTopic(id);
