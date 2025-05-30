@@ -38,19 +38,24 @@ export class NarrativeTemplateService {
 
   /**
    * Get narrative templates compatible with a specific category and difficulty
-   */
-  async getCompatibleTemplates(categoryName: string, difficulty: string): Promise<INarrativeTemplate[]> {
+   */  async getCompatibleTemplates(categoryName: string, difficulty: string): Promise<INarrativeTemplate[]> {
     try {
       const model = await this.getModel();
       return await model.find({
         isActive: true,
-        $or: [
-          { categoryCompatibility: { $in: [categoryName, 'all'] } },
-          { categoryCompatibility: { $size: 0 } } // Empty array means compatible with all
-        ],
-        $or: [
-          { difficulty: difficulty },
-          { difficulty: 'all' }
+        $and: [
+          {
+            $or: [
+              { categoryCompatibility: { $in: [categoryName, 'all'] } },
+              { categoryCompatibility: { $size: 0 } } // Empty array means compatible with all
+            ]
+          },
+          {
+            $or: [
+              { difficulty: difficulty },
+              { difficulty: 'all' }
+            ]
+          }
         ]
       }).sort({ priority: -1, name: 1 });
     } catch (error) {
