@@ -1,7 +1,5 @@
 import getTechTopicModel, { ITechTopic } from '@/models/TechTopic';
 import dbConnect from './db/contentDb';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
 export class TechTopicService {
   private static instance: TechTopicService;
@@ -14,55 +12,12 @@ export class TechTopicService {
     }
     return TechTopicService.instance;
   }
-
   /**
-   * Seed the database with tech topics from the JSON file
-   * This is used during initialization or when updating topics
+   * @deprecated Seed method is no longer used. Data is now managed directly in MongoDB.
+   * This method is kept for backward compatibility but does nothing.
    */
   public async seedTopicsFromFile(): Promise<void> {
-    try {
-      console.log('🌱 Seeding tech topics from file...');
-      
-      // Read topics from the JSON file
-      const topicsPath = join(process.cwd(), 'knowledge-base', 'topics', 'tech-topics.json');
-      const fileTopics = JSON.parse(readFileSync(topicsPath, 'utf-8'));
-      
-      console.log(`📄 Read ${fileTopics.length} topics from file`);
-      
-      // Connect to database
-      await dbConnect();
-      const TechTopicModel = await getTechTopicModel();
-      
-      // Get existing topics from database
-      const existingTopics = await TechTopicModel.find();
-      const existingIds = new Set(existingTopics.map(topic => topic.id));
-      
-      console.log(`💾 Found ${existingTopics.length} existing topics in database`);
-      
-      // Insert new topics
-      let insertedCount = 0;
-      let updatedCount = 0;
-      
-      for (const topic of fileTopics) {
-        if (existingIds.has(topic.id)) {
-          // Update existing topic
-          await TechTopicModel.updateOne(
-            { id: topic.id },
-            { $set: topic }
-          );
-          updatedCount++;
-        } else {
-          // Insert new topic
-          await TechTopicModel.create(topic);
-          insertedCount++;
-        }
-      }
-      
-      console.log(`✅ Seeded tech topics: ${insertedCount} inserted, ${updatedCount} updated`);
-    } catch (error) {
-      console.error('❌ Error seeding tech topics:', error);
-      throw error;
-    }
+    console.log('ℹ️ seedTopicsFromFile() is deprecated - tech topics are now managed directly in MongoDB');
   }
 
   /**

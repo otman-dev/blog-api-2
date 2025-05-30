@@ -1,7 +1,5 @@
 import getCategoryModel from '@/models/Category';
 import dbConnect from './db/contentDb';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
 export interface KBCategory {
   id: string;
@@ -51,77 +49,34 @@ export class CategoryService {
       const existingCategory = await CategoryModel.findOne({ name: categoryName });
       
       if (existingCategory) {
-        console.log(`✅ Category "${categoryName}" already exists in database with ID: ${existingCategory.id}`);
-        return existingCategory.id;
-      }
+        console.log(`✅ Category "${categoryName}" already exists in database with ID: ${existingCategory.id}`);        return existingCategory.id;      }
         console.log(`🆕 Category "${categoryName}" not found in database, will create it`);
       
-      // Category doesn't exist, find it in the knowledge base file
-      const categoriesPath = join(process.cwd(), 'knowledge-base', 'categories', 'categories.json');
-      const categoriesData = readFileSync(categoriesPath, 'utf-8');
-      const allKbCategories = JSON.parse(categoriesData);
-      console.log(`📚 Found ${allKbCategories.length} categories in knowledge base`);
-      
-      const kbCategory = allKbCategories.find((c: KBCategory) => c.name === categoryName);
-      
-      if (!kbCategory) {
-        console.warn(`⚠️ Category "${categoryName}" not found in knowledge base, creating minimal version`);
+      // Create a minimal category based on the name since JSON fallback no longer exists
+      console.warn(`⚠️ Category "${categoryName}" not found in database, creating minimal version`);
         
-        // Create a minimal category based on the name
-        const slug = this.generateSlug(categoryName);
-        const newCategory = new CategoryModel({
-          id: slug,
-          name: categoryName,
-          description: `Articles related to ${categoryName}`,
-          slug: slug,
-          color: this.getRandomColor()
-        });
-        
-        console.log(`📝 About to save minimal category:`, JSON.stringify(newCategory.toObject()));
-        
-        try {
-          const savedCategory = await newCategory.save();
-          console.log(`✅ Created new minimal category "${categoryName}" in database with ID: ${savedCategory.id}`);
-          
-          // Verify category was saved
-          const checkCategory = await CategoryModel.findById(savedCategory._id);
-          console.log(`🔍 Verification check result: ${checkCategory ? 'Category found' : 'Category not found'}`);
-          
-          return savedCategory.id;
-        } catch (saveError) {
-          console.error(`❌ Error saving minimal category:`, saveError);
-          throw saveError;
-        }
-      }
-      
-      console.log(`🔍 Found category "${categoryName}" in knowledge base with ID: ${kbCategory.id}`);
-      
-      // Create category from knowledge base data
+      // Create a minimal category based on the name
+      const slug = this.generateSlug(categoryName);
       const newCategory = new CategoryModel({
-        id: kbCategory.id,
-        name: kbCategory.name,
-        description: kbCategory.description,
-        slug: kbCategory.id,
-        color: this.getColor(kbCategory) || this.getRandomColor(),
-        targetAudience: kbCategory.targetAudience,
-        contentStyle: kbCategory.contentStyle,
-        averageLength: kbCategory.averageLength,
-        requiredSections: kbCategory.requiredSections,
+        id: slug,
+        name: categoryName,
+        description: `Articles related to ${categoryName}`,
+        slug: slug,
+        color: this.getRandomColor()
       });
       
-      console.log(`📝 About to save category from knowledge base:`, JSON.stringify(newCategory.toObject()));
+      console.log(`📝 About to save minimal category:`, JSON.stringify(newCategory.toObject()));
       
       try {
         const savedCategory = await newCategory.save();
-        console.log(`✅ Created new category "${categoryName}" in database from knowledge base with ID: ${savedCategory.id}`);
+        console.log(`✅ Created new minimal category "${categoryName}" in database with ID: ${savedCategory.id}`);
         
         // Verify category was saved
         const checkCategory = await CategoryModel.findById(savedCategory._id);
         console.log(`🔍 Verification check result: ${checkCategory ? 'Category found' : 'Category not found'}`);
-        
-        return savedCategory.id;
+          return savedCategory.id;
       } catch (saveError) {
-        console.error(`❌ Error saving category from knowledge base:`, saveError);
+        console.error(`❌ Error saving minimal category:`, saveError);
         throw saveError;
       }
     } catch (error) {
@@ -150,63 +105,12 @@ export class CategoryService {
     
     return categoryIds;
   }
-  
-  /**
-   * Seed the database with categories from the JSON file 
-   * This is used during initialization or when updating categories
+    /**
+   * @deprecated Seed method is no longer used. Data is now managed directly in MongoDB.
+   * This method is kept for backward compatibility but does nothing.
    */
   public async seedCategoriesFromFile(): Promise<void> {
-    try {
-      console.log('🌱 Seeding categories from file...');
-      
-      // Read categories from the JSON file
-      const categoriesPath = join(process.cwd(), 'knowledge-base', 'categories', 'categories.json');
-      const categoriesData = readFileSync(categoriesPath, 'utf-8');
-      const fileCategories = JSON.parse(categoriesData);
-      
-      console.log(`📄 Read ${fileCategories.length} categories from file`);
-      
-      // Connect to database
-      await dbConnect();
-      const CategoryModel = await getCategoryModel();
-      
-      // Get existing categories from database
-      const existingCategories = await CategoryModel.find();
-      const existingIds = new Set(existingCategories.map(category => category.id));
-      
-      console.log(`💾 Found ${existingCategories.length} existing categories in database`);
-      
-      // Insert new categories
-      let insertedCount = 0;
-      let updatedCount = 0;
-      
-      for (const category of fileCategories) {
-        // Ensure it has required fields
-        const processedCategory = {
-          ...category,
-          description: category.description || `Category for ${category.name} content`,
-          slug: category.slug || category.name.toLowerCase().replace(/\s+/g, '-'),
-        };
-        
-        if (existingIds.has(category.id)) {
-          // Update existing category
-          await CategoryModel.updateOne(
-            { id: category.id },
-            { $set: processedCategory }
-          );
-          updatedCount++;
-        } else {
-          // Insert new category
-          await CategoryModel.create(processedCategory);
-          insertedCount++;
-        }
-      }
-      
-      console.log(`✅ Seeded categories: ${insertedCount} inserted, ${updatedCount} updated`);
-    } catch (error) {
-      console.error('❌ Error seeding categories:', error);
-      throw error;
-    }
+    console.log('ℹ️ seedCategoriesFromFile() is deprecated - categories are now managed directly in MongoDB');
   }
 
   /**

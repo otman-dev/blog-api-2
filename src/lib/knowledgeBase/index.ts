@@ -1,6 +1,4 @@
 import { KnowledgeBaseLoader, Topic, Category, GroqModel } from './loader';
-import { PromptBuilder } from './promptBuilder';
-import { DynamicPromptBuilder } from './dynamicPromptBuilder';
 
 export interface GenerationOptions {
   topicId?: string;
@@ -20,72 +18,17 @@ export interface GeneratedPrompt {
 export class KnowledgeBaseService {
   private static instance: KnowledgeBaseService;
   private loader: KnowledgeBaseLoader;
-  private promptBuilder: PromptBuilder;
-  private dynamicPromptBuilder: DynamicPromptBuilder;  private constructor() {
+
+  private constructor() {
     this.loader = KnowledgeBaseLoader.getInstance();
-    this.promptBuilder = new PromptBuilder();
-    this.dynamicPromptBuilder = new DynamicPromptBuilder();
   }
 
   public static getInstance(): KnowledgeBaseService {
     if (!KnowledgeBaseService.instance) {
       KnowledgeBaseService.instance = new KnowledgeBaseService();
-    }
-    return KnowledgeBaseService.instance;
-  }  /**
-   * Generate a complete prompt configuration for blog post generation
-   * Uses dynamic prompt building with minimal hardcoded content
-   */  public async generatePromptConfiguration(options: GenerationOptions = {}): Promise<GeneratedPrompt> {
-    // Select topic
-    let topic: Topic;
-    if (options.topicId) {
-      topic = await this.loader.getTopicById(options.topicId);
-    } else {
-      topic = await this.loader.getRandomTopic();
-    }    // Get category for the topic
-    let category: Category;
-    if (options.categoryId) {
-      category = await this.loader.getCategoryById(options.categoryId);
-    } else {      // Find category by name from topic
-      const categories = await this.loader.getCategories();
-      const foundCategory = categories.find(c => c.name === topic.category);
-      if (!foundCategory) {
-        console.warn(`⚠️ Category "${topic.category}" not found for topic "${topic.topic}". Using first available category.`);
-        category = categories[0];
-        if (!category) {
-          throw new Error('No categories available in database');
-        }
-      } else {
-        category = foundCategory;
-      }
-    }
-
-    // Build prompts using fully dynamic system (zero hardcoded prompts)
-    const prompts = this.dynamicPromptBuilder.buildFullyDynamicPrompt(topic, category);
-
-    // Apply custom instructions if provided
-    if (options.customInstructions) {
-      prompts.userPrompt += `\n\nADDITIONAL REQUIREMENTS:\n${options.customInstructions}`;
-    }
-
-    // Get models (optionally filtered by preferred model)
-    let models = await this.loader.getModelsByPriority();
-    if (options.preferredModel) {
-      const preferredModel = models.find(m => m.id === options.preferredModel);
-      if (preferredModel) {
-        // Move preferred model to front
-        models = [preferredModel, ...models.filter(m => m.id !== options.preferredModel)];
-      }
-    }
-
-    return {
-      topic,
-      category,
-      systemMessage: prompts.systemMessage,
-      userPrompt: prompts.userPrompt,
-      models
-    };
+    }    return KnowledgeBaseService.instance;
   }
+
   /**
    * Generate a minimal hardcoded prompt configuration, following the zero-template approach
    * This is an alternative to the regular generatePromptConfiguration that uses even less
@@ -222,19 +165,14 @@ ALL content must be in English, including the title, summary, content, and excer
   public async getAvailableCategories(): Promise<Category[]> {
     return await this.loader.getCategories();
   }
-
   /**
    * Get available models
    */
   public async getAvailableModels(): Promise<GroqModel[]> {
     return await this.loader.getModels();
   }
+
   /**
-   * Generate a random topic configuration
-   */
-  public async generateRandomConfiguration(): Promise<GeneratedPrompt> {
-    return await this.generatePromptConfiguration();
-  }  /**
    * Get statistics about the knowledge base
    */
   public async getKnowledgeBaseStats(): Promise<{
