@@ -1,13 +1,23 @@
 import getCategoryModel from '@/models/Category';
-import { KnowledgeBaseLoader, Category as KBCategory } from './knowledgeBase/loader';
 import dbConnect from './db/contentDb';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+export interface KBCategory {
+  id: string;
+  name: string;
+  description: string;
+  targetAudience?: string;
+  contentStyle?: string;
+  averageLength?: string;
+  requiredSections?: string[];
+}
 
 export class CategoryService {
   private static instance: CategoryService;
-  private knowledgeBaseLoader: KnowledgeBaseLoader;
   
   private constructor() {
-    this.knowledgeBaseLoader = KnowledgeBaseLoader.getInstance();
+    // No dependencies needed
   }
 
   public static getInstance(): CategoryService {
@@ -44,14 +54,15 @@ export class CategoryService {
         console.log(`✅ Category "${categoryName}" already exists in database with ID: ${existingCategory.id}`);
         return existingCategory.id;
       }
+        console.log(`🆕 Category "${categoryName}" not found in database, will create it`);
       
-      console.log(`🆕 Category "${categoryName}" not found in database, will create it`);
-      
-      // Category doesn't exist, find it in the knowledge base
-      const allKbCategories = this.knowledgeBaseLoader.getCategories();
+      // Category doesn't exist, find it in the knowledge base file
+      const categoriesPath = join(process.cwd(), 'knowledge-base', 'categories', 'categories.json');
+      const categoriesData = readFileSync(categoriesPath, 'utf-8');
+      const allKbCategories = JSON.parse(categoriesData);
       console.log(`📚 Found ${allKbCategories.length} categories in knowledge base`);
       
-      const kbCategory = allKbCategories.find(c => c.name === categoryName);
+      const kbCategory = allKbCategories.find((c: KBCategory) => c.name === categoryName);
       
       if (!kbCategory) {
         console.warn(`⚠️ Category "${categoryName}" not found in knowledge base, creating minimal version`);
@@ -138,6 +149,95 @@ export class CategoryService {
     }
     
     return categoryIds;
+  }
+  
+  /**
+   * Seed the database with categories from the JSON file 
+   * This is used during initialization or when updating categories
+   */
+  public async seedCategoriesFromFile(): Promise<void> {
+    try {
+      console.log('🌱 Seeding categories from file...');
+      
+      // Read categories from the JSON file
+      const categoriesPath = join(process.cwd(), 'knowledge-base', 'categories', 'categories.json');
+      const categoriesData = readFileSync(categoriesPath, 'utf-8');
+      const fileCategories = JSON.parse(categoriesData);
+      
+      console.log(`📄 Read ${fileCategories.length} categories from file`);
+      
+      // Connect to database
+      await dbConnect();
+      const CategoryModel = await getCategoryModel();
+      
+      // Get existing categories from database
+      const existingCategories = await CategoryModel.find();
+      const existingIds = new Set(existingCategories.map(category => category.id));
+      
+      console.log(`💾 Found ${existingCategories.length} existing categories in database`);
+      
+      // Insert new categories
+      let insertedCount = 0;
+      let updatedCount = 0;
+      
+      for (const category of fileCategories) {
+        // Ensure it has required fields
+        const processedCategory = {
+          ...category,
+          description: category.description || `Category for ${category.name} content`,
+          slug: category.slug || category.name.toLowerCase().replace(/\s+/g, '-'),
+        };
+        
+        if (existingIds.has(category.id)) {
+          // Update existing category
+          await CategoryModel.updateOne(
+            { id: category.id },
+            { $set: processedCategory }
+          );
+          updatedCount++;
+        } else {
+          // Insert new category
+          await CategoryModel.create(processedCategory);
+          insertedCount++;
+        }
+      }
+      
+      console.log(`✅ Seeded categories: ${insertedCount} inserted, ${updatedCount} updated`);
+    } catch (error) {
+      console.error('❌ Error seeding categories:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all categories from the database
+   * @returns Array of categories
+   */
+  public async getAllCategories(): Promise<any[]> {
+    try {
+      await dbConnect();
+      const CategoryModel = await getCategoryModel();
+      return await CategoryModel.find().lean();
+    } catch (error) {
+      console.error('❌ Error getting all categories:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Get a category by ID
+   * @param categoryId The category ID
+   * @returns The category or null if not found
+   */
+  public async getCategoryById(categoryId: string): Promise<any | null> {
+    try {
+      await dbConnect();
+      const CategoryModel = await getCategoryModel();
+      return await CategoryModel.findOne({ id: categoryId }).lean();
+    } catch (error) {
+      console.error(`❌ Error getting category with ID ${categoryId}:`, error);
+      throw error;
+    }
   }
   
   private generateSlug(name: string): string {

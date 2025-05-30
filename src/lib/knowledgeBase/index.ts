@@ -24,12 +24,6 @@ export class KnowledgeBaseService {
   private dynamicPromptBuilder: DynamicPromptBuilder;  private constructor() {
     this.loader = KnowledgeBaseLoader.getInstance();
     this.promptBuilder = new PromptBuilder();
-    
-    // Get all topics, categories, and models for the dynamic prompt builder
-    const topics = this.loader.getTopics();
-    const categories = this.loader.getCategories();
-    const models = this.loader.getModels();
-    
     this.dynamicPromptBuilder = new DynamicPromptBuilder();
   }
 
@@ -38,28 +32,32 @@ export class KnowledgeBaseService {
       KnowledgeBaseService.instance = new KnowledgeBaseService();
     }
     return KnowledgeBaseService.instance;
-  }
-  /**
+  }  /**
    * Generate a complete prompt configuration for blog post generation
    * Uses dynamic prompt building with minimal hardcoded content
-   */
-  public generatePromptConfiguration(options: GenerationOptions = {}): GeneratedPrompt {
+   */  public async generatePromptConfiguration(options: GenerationOptions = {}): Promise<GeneratedPrompt> {
     // Select topic
     let topic: Topic;
     if (options.topicId) {
-      topic = this.loader.getTopicById(options.topicId);
+      topic = await this.loader.getTopicById(options.topicId);
     } else {
-      topic = this.loader.getRandomTopic();
-    }
-
-    // Get category for the topic
+      topic = await this.loader.getRandomTopic();
+    }    // Get category for the topic
     let category: Category;
     if (options.categoryId) {
-      category = this.loader.getCategoryById(options.categoryId);
-    } else {
-      // Find category by name from topic
-      const categories = this.loader.getCategories();
-      category = categories.find(c => c.name === topic.category)!;
+      category = await this.loader.getCategoryById(options.categoryId);
+    } else {      // Find category by name from topic
+      const categories = await this.loader.getCategories();
+      const foundCategory = categories.find(c => c.name === topic.category);
+      if (!foundCategory) {
+        console.warn(`⚠️ Category "${topic.category}" not found for topic "${topic.topic}". Using first available category.`);
+        category = categories[0];
+        if (!category) {
+          throw new Error('No categories available in database');
+        }
+      } else {
+        category = foundCategory;
+      }
     }
 
     // Build prompts using fully dynamic system (zero hardcoded prompts)
@@ -71,7 +69,7 @@ export class KnowledgeBaseService {
     }
 
     // Get models (optionally filtered by preferred model)
-    let models = this.loader.getModelsByPriority();
+    let models = await this.loader.getModelsByPriority();
     if (options.preferredModel) {
       const preferredModel = models.find(m => m.id === options.preferredModel);
       if (preferredModel) {
@@ -88,33 +86,38 @@ export class KnowledgeBaseService {
       models
     };
   }
-
   /**
    * Generate a minimal hardcoded prompt configuration, following the zero-template approach
    * This is an alternative to the regular generatePromptConfiguration that uses even less
    * hardcoded content, similar to the test-minimal-prompts.js approach
-   */
-  public generateMinimalHardcodedPrompt(options: GenerationOptions = {}): GeneratedPrompt {
+   */  public async generateMinimalHardcodedPrompt(options: GenerationOptions = {}): Promise<GeneratedPrompt> {
     // Select topic
     let topic: Topic;
     if (options.topicId) {
-      topic = this.loader.getTopicById(options.topicId);
+      topic = await this.loader.getTopicById(options.topicId);
     } else {
-      topic = this.loader.getRandomTopic();
-    }
-
-    // Get category for the topic
+      topic = await this.loader.getRandomTopic();
+    }    // Get category for the topic
     let category: Category;
     if (options.categoryId) {
-      category = this.loader.getCategoryById(options.categoryId);
+      category = await this.loader.getCategoryById(options.categoryId);
     } else {
       // Find category by name from topic
-      const categories = this.loader.getCategories();
-      category = categories.find(c => c.name === topic.category)!;
+      const categories = await this.loader.getCategories();
+      const foundCategory = categories.find(c => c.name === topic.category);
+      if (!foundCategory) {
+        console.warn(`⚠️ Category "${topic.category}" not found for topic "${topic.topic}". Using first available category.`);
+        category = categories[0];
+        if (!category) {
+          throw new Error('No categories available in database');
+        }
+      } else {
+        category = foundCategory;
+      }
     }
     
     // Get models (optionally filtered by preferred model)
-    let models = this.loader.getModelsByPriority();
+    let models = await this.loader.getModelsByPriority();
     if (options.preferredModel) {
       const preferredModel = models.find(m => m.id === options.preferredModel);
       if (preferredModel) {
@@ -204,51 +207,46 @@ ALL content must be in English, including the title, summary, content, and excer
     
     return fullPrompt;
   }
-
   /**
    * Get available topics, optionally filtered by category
    */
-  public getAvailableTopics(categoryId?: string): Topic[] {
+  public async getAvailableTopics(categoryId?: string): Promise<Topic[]> {
     if (categoryId) {
-      return this.loader.getTopicsByCategory(categoryId);
+      return await this.loader.getTopicsByCategory(categoryId);
     }
-    return this.loader.getTopics();
+    return await this.loader.getTopics();
   }
-
   /**
    * Get available categories
    */
-  public getAvailableCategories(): Category[] {
-    return this.loader.getCategories();
+  public async getAvailableCategories(): Promise<Category[]> {
+    return await this.loader.getCategories();
   }
 
   /**
    * Get available models
    */
-  public getAvailableModels(): GroqModel[] {
-    return this.loader.getModels();
+  public async getAvailableModels(): Promise<GroqModel[]> {
+    return await this.loader.getModels();
   }
-
   /**
    * Generate a random topic configuration
    */
-  public generateRandomConfiguration(): GeneratedPrompt {
-    return this.generatePromptConfiguration();
-  }
-
-  /**
+  public async generateRandomConfiguration(): Promise<GeneratedPrompt> {
+    return await this.generatePromptConfiguration();
+  }  /**
    * Get statistics about the knowledge base
    */
-  public getKnowledgeBaseStats(): {
+  public async getKnowledgeBaseStats(): Promise<{
     totalTopics: number;
     totalCategories: number;
     totalModels: number;
     topicsByCategory: Record<string, number>;
     topicsByDifficulty: Record<string, number>;
-  } {
-    const topics = this.loader.getTopics();
-    const categories = this.loader.getCategories();
-    const models = this.loader.getModels();
+  }> {
+    const topics = await this.loader.getTopics();
+    const categories = await this.loader.getCategories();
+    const models = await this.loader.getModels();
 
     const topicsByCategory: Record<string, number> = {};
     const topicsByDifficulty: Record<string, number> = {};
@@ -266,13 +264,12 @@ ALL content must be in English, including the title, summary, content, and excer
       topicsByDifficulty
     };
   }
-
   /**
    * Validate if a topic exists
    */
-  public isValidTopic(topicId: string): boolean {
+  public async isValidTopic(topicId: string): Promise<boolean> {
     try {
-      this.loader.getTopicById(topicId);
+      await this.loader.getTopicById(topicId);
       return true;
     } catch {
       return false;

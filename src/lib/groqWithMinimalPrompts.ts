@@ -27,10 +27,9 @@ export async function generatePostWithKnowledgeBase(
   request: PostGenerationRequest = {}
 ): Promise<GeneratedPost> {
   const knowledgeBase = KnowledgeBaseService.getInstance();
-  
-  // Generate prompt configuration using knowledge base with minimal hardcoding
+    // Generate prompt configuration using knowledge base with minimal hardcoding
   // This uses the pure metadata-driven approach with zero hardcoded templates
-  const config = knowledgeBase.generateMinimalHardcodedPrompt(request.options);
+  const config = await knowledgeBase.generateMinimalHardcodedPrompt(request.options);
   
   console.log(`🎯 Selected topic: ${config.topic.topic}`);
   console.log(`📁 Category: ${config.category.name}`);

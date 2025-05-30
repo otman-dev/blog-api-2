@@ -31,7 +31,7 @@ export async function generatePostWithKnowledgeBase(
   const knowledgeBase = KnowledgeBaseService.getInstance();
   
   // Generate prompt configuration using knowledge base
-  const config = knowledgeBase.generatePromptConfiguration(request.options);
+  const config = await knowledgeBase.generatePromptConfiguration(request.options);
   
   console.log(`🎯 Selected topic: ${config.topic.topic}`);
   console.log(`📁 Category: ${config.category.name}`);

@@ -16,7 +16,6 @@ export class PromptBuilder {
   constructor() {
     this.knowledgeBasePath = join(process.cwd(), 'knowledge-base');
   }
-
   public buildTutorialPrompt(topic: Topic, category: Category): {
     systemMessage: string;
     userPrompt: string;
@@ -34,7 +33,7 @@ export class PromptBuilder {
     
     const userPrompt = template.mainPrompt
       .replace(/\{TOPIC\}/g, topic.topic)
-      .replace(/\{TIME_TO_COMPLETE\}/g, topic.timeToComplete)
+      .replace(/\{TIME_TO_COMPLETE\}/g, topic.timeToComplete || '45 minutes')
       .replace(/\{CONTENT_SECTIONS\}/g, contentSections)
       .replace(/\{CATEGORY\}/g, topic.category)
       .replace(/\{TAGS\}/g, JSON.stringify(tags))
@@ -107,7 +106,6 @@ export class PromptBuilder {
     const allTags = [...baseTags, ...topicKeywords, difficultyTag];
     return [...new Set(allTags)].slice(0, 8); // Limit to 8 tags
   }
-
   public buildCustomPrompt(
     topic: Topic,
     category: Category,
