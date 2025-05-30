@@ -73,14 +73,12 @@ async function seedNarrativeTemplates() {
 
     // Get or create the model
     const NarrativeTemplate = mongoose.models.NarrativeTemplate || 
-      mongoose.model('NarrativeTemplate', NarrativeTemplateSchema);
-
-    // Check if templates already exist
+      mongoose.model('NarrativeTemplate', NarrativeTemplateSchema);    // Check if templates already exist
     const existingCount = await NarrativeTemplate.countDocuments();
     if (existingCount > 0) {
-      console.log('📝 Narrative templates already exist, skipping seed');
-      await mongoose.disconnect();
-      return;
+      console.log('📝 Existing narrative templates found. Replacing with improved versions...');
+      await NarrativeTemplate.deleteMany({});
+      console.log('🗑️ Cleared existing templates');
     }
 
     // Create initial templates
@@ -216,122 +214,574 @@ function getInitialTemplateData() {
         ]
       },
       difficulty: 'all',
-      categoryCompatibility: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Web Development', 'Programming'],
+      categoryCompatibility: ['Frontend Engineering', 'API Design', 'Testing', 'DevOps & CI/CD'],
       isActive: true,
       priority: 3
     },
     {
-      id: 'tutorial-journey-guide',
-      name: 'Learning Journey Tutorial',
-      description: 'A tutorial that feels like a guided learning journey with a mentor',
-      type: 'tutorial',
+      id: 'discovery-journey-explorer',
+      name: 'Discovery Journey Explorer',
+      description: 'An exploration narrative that takes readers on a journey of discovering new technologies or concepts',
+      type: 'discovery',
       structure: {
         sections: [
           {
-            name: 'Setting the Stage',
-            purpose: 'Create context and set expectations for the learning journey',
-            techniques: ['goal setting', 'motivation building', 'expectation management'],
+            name: 'The Curiosity Spark',
+            purpose: 'Ignite curiosity about a new technology or approach',
+            techniques: ['curiosity building', 'problem identification', 'future visioning'],
             hooks: [
-              'Ready to level up your skills?',
-              'By the end of this guide, you\'ll be able to...',
-              'This tutorial will take you from confused to confident'
+              'What if I told you there\'s a better way to handle this?',
+              'I stumbled upon something that completely changed how I think about...',
+              'The other day, I discovered something that blew my mind'
             ],
             transitions: [
-              'Let\'s start this journey together',
-              'Here\'s what we\'re going to build',
-              'Our destination is'
+              'Let me show you what I found',
+              'This discovery changed everything',
+              'Here\'s where it gets interesting'
             ],
             humanElements: [
-              'Acknowledge the learning challenge',
-              'Build excitement about the outcome',
-              'Set realistic expectations'
+              'Share the excitement of discovery',
+              'Express genuine curiosity and wonder',
+              'Invite readers into the exploration mindset'
             ]
           },
           {
-            name: 'Progressive Discovery',
-            purpose: 'Introduce concepts progressively with hands-on practice',
-            techniques: ['incremental learning', 'practice exercises', 'concept building'],
+            name: 'The Exploration Adventure',
+            purpose: 'Take readers through the discovery process with hands-on exploration',
+            techniques: ['guided exploration', 'progressive revelation', 'interactive discovery'],
             hooks: [
-              'Here\'s where things get interesting',
-              'Time to get our hands dirty',
-              'Let\'s see this concept in action'
+              'Let\'s explore this together',
+              'Time to roll up our sleeves and dig deeper',
+              'The real magic happens when you try it yourself'
             ],
             transitions: [
-              'Building on what we just learned',
-              'The next piece of the puzzle is',
-              'Now let\'s add another layer'
+              'Now let\'s see what happens when...',
+              'The plot thickens as we discover...',
+              'But wait, there\'s more'
             ],
             humanElements: [
-              'Celebrate progress at each step',
-              'Acknowledge when things get challenging',
-              'Provide encouragement during difficult concepts'
+              'Share moments of surprise and delight',
+              'Acknowledge the thrill of learning',
+              'Celebrate breakthrough moments together'
             ]
           }
         ],
         narrativeFlow: [
-          'Build excitement and context',
-          'Progress through concepts systematically',
-          'Apply knowledge practically',
-          'Celebrate mastery'
+          'Spark curiosity and wonder',
+          'Guide through discovery process',
+          'Reveal key insights together',
+          'Inspire continued exploration'
         ]
       },
       personalityProfile: {
-        tone: 'encouraging and patient',
-        perspective: 'experienced mentor guiding a protégé',
-        experienceLevel: 'teacher with deep understanding of learning challenges',
-        communicationStyle: 'patient instructor who remembers what it\'s like to learn',
+        tone: 'enthusiastic and curious',
+        perspective: 'passionate explorer sharing discoveries',
+        experienceLevel: 'experienced developer with insatiable curiosity',
+        communicationStyle: 'excited friend sharing cool discoveries',
         conversationalPhrases: [
-          'Don\'t worry if this seems overwhelming at first',
-          'You\'re doing great - this part trips everyone up',
-          'Take your time with this concept',
-          'It\'s okay to go back and review',
-          'Every expert was once a beginner'
+          'You won\'t believe what I just figured out',
+          'This is going to blow your mind',
+          'I\'ve been experimenting with this and...',
+          'The more I dig into this, the more fascinating it gets',
+          'I had to share this discovery with you'
         ],
         personalExamples: [
-          'When I was learning this, I made the same mistake...',
-          'My students often ask about this exact point...',
-          'I\'ve seen many developers struggle with this concept...',
-          'After teaching this for years, I\'ve found...',
-          'The most common question I get is...'
+          'Last week I was experimenting with...',
+          'While building my side project, I discovered...',
+          'I was reading about this new approach and...',
+          'A fellow developer introduced me to...',
+          'During a recent code review, I learned...'
         ],
         relatableAnalogies: [
-          'Learning this is like learning to ride a bike...',
-          'Think of code architecture like city planning...',
-          'Debugging is like being a medical detective...',
-          'Writing clean code is like writing a clear recipe...',
-          'Version control is like having a time machine...'
+          'It\'s like finding a secret passage in a familiar building',
+          'Think of it as discovering a new route that cuts your commute in half',
+          'It\'s like upgrading from a bicycle to a sports car',
+          'Imagine finding the perfect tool you didn\'t know existed',
+          'It\'s like discovering a cheat code for real life'
         ]
       },
       humanizationTechniques: {
         openingHooks: [
-          'Build excitement about learning outcomes',
-          'Connect to career advancement goals',
-          'Share the satisfaction of mastering new skills',
-          'Reference the empowerment of understanding'
+          'Share a moment of genuine surprise',
+          'Express authentic excitement about discovery',
+          'Connect to universal curiosity',
+          'Use anticipation-building language'
         ],
         conversationalElements: [
-          'Check in with reader understanding regularly',
-          'Acknowledge when concepts are challenging',
-          'Provide reassurance and encouragement',
-          'Use inclusive learning language'
+          'Use exclamation points appropriately for excitement',
+          'Include "aha!" moments and revelations',
+          'Share the emotional journey of discovery',
+          'Use collaborative language like "let\'s explore"'
         ],
         personalTouches: [
-          'Share teaching experiences and insights',
-          'Include common student questions and concerns',
-          'Reference learning milestones and celebrations',
+          'Share the actual discovery moment',
+          'Include what led to the exploration',
+          'Mention unexpected findings along the way',
+          'Reference the impact on personal projects'
+        ],
+        emotionalConnections: [
+          'Capture the thrill of discovery',
+          'Acknowledge the satisfaction of understanding',
+          'Celebrate the joy of learning something new',
+          'Connect to the passion for continuous improvement'
+        ]
+      },
+      difficulty: 'all',
+      categoryCompatibility: ['Frontend Engineering', 'API Design', 'Cloud Architecture', 'Infrastructure'],
+      isActive: true,
+      priority: 4
+    },
+    {
+      id: 'battle-tested-case-study',
+      name: 'Battle-Tested Case Study',
+      description: 'A real-world case study showcasing lessons learned from production challenges',
+      type: 'case-study',
+      structure: {
+        sections: [
+          {
+            name: 'The War Story Setup',
+            purpose: 'Set the scene with a real production challenge or project',
+            techniques: ['context setting', 'stakes establishment', 'dramatic tension'],
+            hooks: [
+              'At 3 AM, our production server started throwing errors...',
+              'It was supposed to be a simple feature addition. It wasn\'t.',
+              'Sometimes the best lessons come from the biggest disasters'
+            ],
+            transitions: [
+              'Here\'s what happened',
+              'Let me paint the picture',
+              'The situation was this'
+            ],
+            humanElements: [
+              'Share the pressure and responsibility felt',
+              'Acknowledge the human cost of technical decisions',
+              'Express vulnerability about challenges faced'
+            ]
+          },
+          {
+            name: 'The Battle and Lessons',
+            purpose: 'Walk through the challenge, solution, and key learnings',
+            techniques: ['detailed analysis', 'lesson extraction', 'wisdom sharing'],
+            hooks: [
+              'Here\'s what we learned the hard way',
+              'The solution wasn\'t what we expected',
+              'If I could go back and do it again...'
+            ],
+            transitions: [
+              'The key insight was',
+              'What we discovered changed everything',
+              'The real lesson here is'
+            ],
+            humanElements: [
+              'Share the emotional journey of problem-solving',
+              'Acknowledge team dynamics and collaboration',
+              'Express gratitude for lessons learned'
+            ]
+          }
+        ],
+        narrativeFlow: [
+          'Set dramatic context and stakes',
+          'Navigate through the challenge',
+          'Extract valuable lessons',
+          'Apply wisdom to future scenarios'
+        ]
+      },
+      personalityProfile: {
+        tone: 'seasoned and reflective',
+        perspective: 'battle-tested veteran sharing war stories',
+        experienceLevel: 'senior developer with production scars',
+        communicationStyle: 'wise mentor sharing hard-earned wisdom',
+        conversationalPhrases: [
+          'If there\'s one thing I\'ve learned...',
+          'In hindsight, we should have...',
+          'The mistake we made was thinking...',
+          'What I wish I knew then was...',
+          'The real kicker was when...'
+        ],
+        personalExamples: [
+          'In our production environment, we discovered...',
+          'During a critical deployment, we realized...',
+          'While scaling our application, we hit a wall when...',
+          'Our team learned the hard way that...',
+          'A late-night debugging session taught us...'
+        ],
+        relatableAnalogies: [
+          'It\'s like performing surgery while the patient is awake',
+          'Think of it as rebuilding the airplane while flying',
+          'It\'s like being a firefighter and detective simultaneously',
+          'Imagine trying to change the tires on a moving car',
+          'It\'s like conducting an orchestra during an earthquake'
+        ]
+      },
+      humanizationTechniques: {
+        openingHooks: [
+          'Start with a high-stakes scenario',
+          'Use dramatic but realistic situations',
+          'Share moments of genuine concern or pressure',
+          'Connect to universal professional experiences'
+        ],
+        conversationalElements: [
+          'Include moments of uncertainty and doubt',
+          'Share internal thought processes during crisis',
+          'Use reflective and contemplative language',
+          'Acknowledge mistakes and imperfect decisions'
+        ],
+        personalTouches: [
+          'Share specific details from real experiences',
+          'Include team member perspectives and contributions',
+          'Reference actual metrics and business impact',
+          'Mention personal growth from the experience'
+        ],
+        emotionalConnections: [
+          'Acknowledge the stress of production issues',
+          'Celebrate team resilience and problem-solving',
+          'Recognize the satisfaction of overcoming challenges',
+          'Connect to professional growth and maturity'
+        ]
+      },
+      difficulty: 'intermediate',
+      categoryCompatibility: ['DevOps & CI/CD', 'Database Engineering', 'Frontend Engineering', 'Security', 'Infrastructure'],
+      isActive: true,
+      priority: 5
+    },
+    {
+      id: 'friendly-comparison-guide',
+      name: 'Friendly Comparison Guide',
+      description: 'A balanced comparison that helps readers make informed decisions without bias',
+      type: 'comparison',
+      structure: {
+        sections: [
+          {
+            name: 'The Decision Dilemma',
+            purpose: 'Present the comparison context and why the choice matters',
+            techniques: ['context setting', 'decision framing', 'empathy building'],
+            hooks: [
+              'Choosing between X and Y? You\'re not alone in this dilemma',
+              'I get asked this question at least once a week...',
+              'The eternal debate: which one should you actually use?'
+            ],
+            transitions: [
+              'Let\'s break this down together',
+              'Here\'s my honest take on both',
+              'I\'ve used both extensively, so let me share'
+            ],
+            humanElements: [
+              'Acknowledge the difficulty of making decisions',
+              'Express empathy for the choice paralysis',
+              'Share the importance of making informed decisions'
+            ]
+          },
+          {
+            name: 'The Fair Comparison',
+            purpose: 'Present balanced analysis with real-world context and recommendations',
+            techniques: ['objective analysis', 'use case mapping', 'practical recommendations'],
+            hooks: [
+              'Here\'s what each excels at',
+              'Let me give you the honest pros and cons',
+              'The truth is, it depends on your specific situation'
+            ],
+            transitions: [
+              'For your use case, consider this',
+              'The deciding factor is usually',
+              'My recommendation would be'
+            ],
+            humanElements: [
+              'Share personal preferences and reasoning',
+              'Acknowledge that there\'s no perfect solution',
+              'Express confidence in reader\'s ability to choose'
+            ]
+          }
+        ],
+        narrativeFlow: [
+          'Acknowledge the decision challenge',
+          'Present fair and balanced analysis',
+          'Provide contextual recommendations',
+          'Empower confident decision making'
+        ]
+      },
+      personalityProfile: {
+        tone: 'balanced and helpful',
+        perspective: 'experienced advisor who\'s tried everything',
+        experienceLevel: 'polyglot developer with broad experience',
+        communicationStyle: 'honest consultant providing unbiased advice',
+        conversationalPhrases: [
+          'In my experience with both...',
+          'I\'ve seen teams succeed with either approach',
+          'The honest truth is...',
+          'If I had to pick one for my own project...',
+          'Here\'s what I\'ve observed in practice'
+        ],
+        personalExamples: [
+          'In our last project, we chose X because...',
+          'I\'ve worked with teams that swear by Y...',
+          'When consulting for different companies, I\'ve seen...',
+          'My personal preference has evolved from...',
+          'After using both in production environments...'
+        ],
+        relatableAnalogies: [
+          'It\'s like choosing between a sports car and an SUV',
+          'Think of it as picking the right tool for the job',
+          'It\'s similar to choosing between a restaurant and cooking at home',
+          'Like selecting the perfect hiking trail for your skill level',
+          'It\'s like choosing between different workout routines'
+        ]
+      },
+      humanizationTechniques: {
+        openingHooks: [
+          'Acknowledge the common decision struggle',
+          'Express understanding of choice paralysis',
+          'Share the desire to make the right choice',
+          'Connect to professional growth considerations'
+        ],
+        conversationalElements: [
+          'Use fair and balanced language throughout',
+          'Acknowledge strengths of all options',
+          'Avoid absolute statements or strong bias',
+          'Include nuanced perspectives and trade-offs'
+        ],
+        personalTouches: [
+          'Share evolution of personal preferences over time',
+          'Include real project experiences and outcomes',
+          'Reference team dynamics and organizational factors',
+          'Mention lessons learned from different choices'
+        ],
+        emotionalConnections: [
+          'Acknowledge the anxiety of making wrong choices',
+          'Celebrate the wisdom that comes from experience',
+          'Recognize that different solutions work for different people',
+          'Connect to the confidence that comes from informed decisions'
+        ]
+      },
+      difficulty: 'all',
+      categoryCompatibility: ['Cloud Architecture', 'Infrastructure', 'API Architecture', 'Distributed Architecture'],
+      isActive: true,
+      priority: 4
+    },
+    {
+      id: 'beginners-journey-guide',
+      name: 'Beginner\'s Journey Guide',
+      description: 'A gentle, encouraging journey designed specifically for those starting their coding adventure',
+      type: 'journey',
+      structure: {
+        sections: [
+          {
+            name: 'Welcome to the Journey',
+            purpose: 'Create a warm, welcoming environment for beginners',
+            techniques: ['encouragement building', 'expectation setting', 'fear reduction'],
+            hooks: [
+              'Starting your coding journey? Welcome to the adventure!',
+              'Every expert was once a beginner - including me',
+              'You\'re about to embark on one of the most rewarding learning experiences'
+            ],
+            transitions: [
+              'Let me be your guide on this journey',
+              'Together, we\'ll take this step by step',
+              'I\'ll be right here with you'
+            ],
+            humanElements: [
+              'Acknowledge the courage it takes to start',
+              'Express genuine excitement for their journey',
+              'Share the universal nature of the learning experience'
+            ]
+          },
+          {
+            name: 'Building Confidence Through Practice',
+            purpose: 'Guide beginners through practical exercises with plenty of encouragement',
+            techniques: ['confidence building', 'hands-on practice', 'celebration of progress'],
+            hooks: [
+              'You\'re doing better than you think',
+              'Look how far you\'ve come already!',
+              'This next step is going to feel really good'
+            ],
+            transitions: [
+              'Now let\'s build on that success',
+              'Ready for the next exciting step?',
+              'You\'ve got this - let\'s keep going'
+            ],
+            humanElements: [
+              'Celebrate every small victory',
+              'Acknowledge when things feel difficult',
+              'Provide reassurance and perspective'
+            ]
+          }
+        ],
+        narrativeFlow: [
+          'Welcome and encourage',
+          'Build confidence through small wins',
+          'Expand knowledge gradually',
+          'Celebrate growth and progress'
+        ]
+      },
+      personalityProfile: {
+        tone: 'warm and encouraging',
+        perspective: 'patient mentor who loves teaching beginners',
+        experienceLevel: 'experienced teacher with beginner\'s mindset',
+        communicationStyle: 'supportive coach cheering from the sidelines',
+        conversationalPhrases: [
+          'You\'re doing amazing!',
+          'Don\'t worry - this confused me at first too',
+          'Every developer has been exactly where you are',
+          'I believe in you, and here\'s why...',
+          'You\'ve got the most important skill: curiosity'
+        ],
+        personalExamples: [
+          'When I was starting out, I remember feeling...',
+          'My first programming teacher told me...',
+          'I\'ve taught hundreds of beginners, and you know what they all have in common?',
+          'The mistake I made when learning was...',
+          'What I wish someone had told me on day one...'
+        ],
+        relatableAnalogies: [
+          'Learning to code is like learning a new language',
+          'Think of programming like following a recipe',
+          'It\'s like learning to drive - scary at first, natural later',
+          'Imagine coding as building with digital LEGO blocks',
+          'It\'s like learning to play a musical instrument'
+        ]
+      },
+      humanizationTechniques: {
+        openingHooks: [
+          'Acknowledge the bravery of starting something new',
+          'Express genuine excitement about their potential',
+          'Share the transformative power of coding',
+          'Connect to universal learning experiences'
+        ],
+        conversationalElements: [
+          'Use encouraging and supportive language',
+          'Frequently check in on understanding',
+          'Provide multiple explanations for complex concepts',
+          'Use positive reinforcement throughout'
+        ],
+        personalTouches: [
+          'Share personal learning struggles and breakthroughs',
+          'Include stories of successful students',
+          'Reference the joy of teaching and watching growth',
           'Connect to broader educational philosophy'
         ],
         emotionalConnections: [
           'Acknowledge the vulnerability of learning',
-          'Celebrate breakthrough moments',
-          'Recognize the courage to try new things',
-          'Connect to the pride of accomplishment'
+          'Celebrate courage to try new things',
+          'Recognize the excitement of possibility',
+          'Connect to the pride of achievement'
+        ]
+      },
+      difficulty: 'beginner',
+      categoryCompatibility: ['Frontend Engineering', 'API Design', 'WebAssembly', 'Testing'],
+      isActive: true,
+      priority: 5
+    },
+    {
+      id: 'tech-storyteller-narrative',
+      name: 'Tech Storyteller Narrative',
+      description: 'A compelling story-driven approach that weaves technical concepts into engaging narratives',
+      type: 'narrative',
+      structure: {
+        sections: [
+          {
+            name: 'The Story Hook',
+            purpose: 'Open with a compelling story that draws readers in',
+            techniques: ['story telling', 'character development', 'narrative tension'],
+            hooks: [
+              'Let me tell you a story about a developer named Sarah...',
+              'Picture this: a small startup, tight deadline, impossible requirements',
+              'It was the kind of bug that makes you question everything you know about programming'
+            ],
+            transitions: [
+              'But here\'s where the story gets interesting',
+              'What happened next changed everything',
+              'Little did they know, this was just the beginning'
+            ],
+            humanElements: [
+              'Create relatable characters and situations',
+              'Build emotional investment in the outcome',
+              'Use narrative tension to maintain engagement'
+            ]
+          },
+          {
+            name: 'The Technical Journey',
+            purpose: 'Weave technical content seamlessly into the story narrative',
+            techniques: ['technical storytelling', 'concept integration', 'story resolution'],
+            hooks: [
+              'Here\'s where the technical magic happened',
+              'The solution was elegant in its simplicity',
+              'What our hero discovered changed the game'
+            ],
+            transitions: [
+              'As the pieces fell into place',
+              'The breakthrough moment came when',
+              'And that\'s when everything clicked'
+            ],
+            humanElements: [
+              'Maintain character perspective throughout technical explanations',
+              'Show the human impact of technical decisions',
+              'Celebrate the satisfaction of problem solving'
+            ]
+          }
+        ],
+        narrativeFlow: [
+          'Establish compelling characters and conflict',
+          'Develop tension through technical challenges',
+          'Reveal solutions through character actions',
+          'Conclude with satisfaction and learning'
+        ]
+      },
+      personalityProfile: {
+        tone: 'engaging and dramatic',
+        perspective: 'storyteller who sees drama in everyday development',
+        experienceLevel: 'experienced developer with narrative flair',
+        communicationStyle: 'captivating narrator bringing tech to life',
+        conversationalPhrases: [
+          'Here\'s where the plot thickens',
+          'Little did our protagonist know...',
+          'The twist in this story is...',
+          'Against all odds, they discovered...',
+          'And that\'s when the magic happened'
+        ],
+        personalExamples: [
+          'I once worked with a team that faced this exact scenario...',
+          'This reminds me of a project where we had to...',
+          'The most dramatic debugging session I ever witnessed...',
+          'There was this one time when everything went wrong, but then...',
+          'I\'ll never forget the day we discovered...'
+        ],
+        relatableAnalogies: [
+          'It\'s like a detective story, but with code',
+          'Think of it as a hero\'s journey through technical challenges',
+          'It\'s like watching a master chef work under pressure',
+          'Imagine a puzzle where each piece reveals the bigger picture',
+          'It\'s like watching an artist create a masterpiece'
+        ]
+      },
+      humanizationTechniques: {
+        openingHooks: [
+          'Start with dramatic or intriguing scenarios',
+          'Use character-driven opening lines',
+          'Create immediate narrative tension',
+          'Connect to universal human experiences'
+        ],
+        conversationalElements: [
+          'Use narrative devices like foreshadowing',
+          'Include dialogue and character interactions',
+          'Build suspense around technical revelations',
+          'Use descriptive and engaging language'
+        ],
+        personalTouches: [
+          'Draw from real team dynamics and personalities',
+          'Include authentic project pressures and constraints',
+          'Reference actual breakthrough moments and celebrations',
+          'Share the emotional journey of technical work'
+        ],
+        emotionalConnections: [
+          'Create empathy for characters facing challenges',
+          'Build anticipation for problem resolution',
+          'Celebrate collective achievements and breakthroughs',
+          'Connect to the drama inherent in creative problem-solving'
         ]
       },
       difficulty: 'all',
-      categoryCompatibility: ['all'],
+      categoryCompatibility: ['Platform Engineering', 'Resilience Engineering', 'Distributed Architecture', 'Infrastructure'],
       isActive: true,
-      priority: 2
+      priority: 3
     }
   ];
 }
