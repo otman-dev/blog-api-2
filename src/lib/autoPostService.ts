@@ -2,6 +2,7 @@ import dbConnect from './db/contentDb';
 import getBlogModel from '@/models/Blog';
 import { generateRandomPost } from './groqWithMinimalPrompts';
 import { getAutomationState, setAutomationState, incrementPostCount } from '../models/AutomationState';
+import { CategoryService } from './categoryService';
 
 export class AutoPostService {
   private static instance: AutoPostService;
@@ -28,12 +29,15 @@ export class AutoPostService {
   public async createAutomaticPost(): Promise<void> {
     try {
       console.log('🤖 Generating new post with Groq AI...');
-      
-      // Generate post content using Groq
+        // Generate post content using Groq
       const generatedPost = await generateRandomPost();
       
       // Connect to database and get blog model
       const BlogModel = await getBlogModel();
+      
+      // Ensure all categories exist in the database
+      const categoryService = CategoryService.getInstance();
+      const categoryIds = await categoryService.ensureCategoriesExist(generatedPost.categories);
       
       // Create and save the post with retry logic for duplicate slugs
       let attempts = 0;

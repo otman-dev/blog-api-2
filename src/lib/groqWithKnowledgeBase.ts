@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { KnowledgeBaseService, GenerationOptions } from './knowledgeBase';
+import { CategoryService } from './categoryService';
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -52,47 +53,39 @@ export async function generatePostWithKnowledgeBase(
             content: config.userPrompt
           }
         ],
-        model: model.name,
+        model: model.id,
         temperature: model.temperature,
         max_tokens: model.maxTokens,
+        top_p: 1,
+        stop: null
       });
 
-      const response = completion.choices[0]?.message?.content;
-      if (!response) {
-        throw new Error(`No response from Groq API with model ${model.name}`);
-      }
-
-      console.log(`📝 Raw response from ${model.name}:`, response.substring(0, 200) + '...');
-
-      // Parse and clean the JSON response (reuse existing logic)
+      // Extract and clean the completion
+      const response = completion.choices[0]?.message?.content || '';
       const blogData = await parseAndCleanResponse(response, model.name);
       
-      // Validate the response structure
-      if (!blogData.title || !blogData.content || !blogData.excerpt) {
-        throw new Error(`Invalid response structure from model ${model.name}`);
-      }
-
-      // Ensure categories and tags are arrays
-      if (!Array.isArray(blogData.categories)) {
+      // Ensure the category from the knowledge base is included
+      if (blogData && blogData.categories) {
+        if (!blogData.categories.includes(config.category.name)) {
+          blogData.categories.push(config.category.name);
+        }
+      } else {
         blogData.categories = [config.category.name];
       }
-      if (!Array.isArray(blogData.tags)) {
-        blogData.tags = config.topic.keywords.concat(["tutorial", "practical"]);
-      }
-
-      console.log(`✅ Successfully generated post with model: ${model.name}`);
-      console.log(`📊 Stats: ${blogData.content.length} characters, ${blogData.categories.length} categories, ${blogData.tags.length} tags`);
       
+      // Ensure all categories exist in the database
+      const categoryService = CategoryService.getInstance();
+      await categoryService.ensureCategoriesExist(blogData.categories);
+      
+      console.log(`✅ Successfully generated post with model: ${model.name}`);
       return blogData;
-
     } catch (error) {
-      console.error(`❌ Error with model ${model.name}:`, error);
-      // Continue to next model
+      console.error(`❌ Error with model ${model.id}:`, error);
+      // Continue to next model in priority order
     }
   }
-
-  // If all models fail, throw error
-  throw new Error('Failed to generate blog content with any available model');
+  
+  throw new Error('All models failed to generate content');
 }
 
 /**

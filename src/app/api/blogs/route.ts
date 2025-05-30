@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import getBlogModel from '@/models/Blog';
 import { generateRandomPost } from '@/lib/groqWithMinimalPrompts';
 import { requireAuth } from '@/lib/middleware';
+import { CategoryService } from '@/lib/categoryService';
 
 export async function GET() {
   try {
@@ -34,11 +35,14 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json();
-    
-    // Check if this is a post generation request
+      // Check if this is a post generation request
     if (body.generateWithGroq) {
       // Generate post content using Groq
       const generatedPost = await generateRandomPost();
+      
+      // Ensure categories exist in database
+      const categoryService = CategoryService.getInstance();
+      await categoryService.ensureCategoriesExist(generatedPost.categories);
       
       // Get blog model and save the generated post
       const Post = await getBlogModel();
@@ -60,10 +64,19 @@ export async function POST(request: NextRequest) {
         success: true,
         data: savedPost,
         generated: true
-      });
-    } else {
+      });    } else {
       // Direct post creation
-      const { title, content, excerpt, categories, tags, published, status } = body;
+      const { title, content, excerpt } = body;
+      const categories = body.categories || [];
+      const tags = body.tags || [];
+      const status = body.status || 'published';
+      const published = body.published !== undefined ? body.published : true;
+      
+      // Ensure categories exist in database if provided
+      if (categories.length > 0) {
+        const categoryService = CategoryService.getInstance();
+        await categoryService.ensureCategoriesExist(categories);
+      }
       
       const Post = await getBlogModel();
       const post = new Post({
@@ -71,10 +84,10 @@ export async function POST(request: NextRequest) {
         content,
         excerpt,
         author: 'Mouhib Otman',
-        categories: categories || [],
-        tags: tags || [],
-        status: status || 'published',
-        published: published !== undefined ? published : true,
+        categories,
+        tags,
+        status,
+        published,
         publishedAt: new Date()
       });
       

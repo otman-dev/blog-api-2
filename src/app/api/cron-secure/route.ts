@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import AutoPostService from '@/lib/autoPostService';
+import { CategoryService } from '@/lib/categoryService';
+import dbConnect from '@/lib/db/contentDb';
 
 // Secret API key - set this in your Vercel environment variables
 const API_KEY = process.env.CRON_API_KEY || 'temporary-dev-cron-api-key';

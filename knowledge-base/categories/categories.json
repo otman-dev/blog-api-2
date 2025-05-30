@@ -3,6 +3,10 @@
     "id": "tutorials-setup",
     "name": "Tutorials & Setup",
     "description": "Step-by-step guides for setting up tools, frameworks, and development environments",
+    "slug": "tutorials-setup",
+    "color": "#3b82f6",
+    "createdAt": "2025-05-30T15:25:19.871Z",
+    "updatedAt": "2025-05-30T15:25:19.871Z",
     "targetAudience": "Developers and DevOps engineers",
     "contentStyle": "Practical, hands-on tutorials with complete working examples",
     "averageLength": "2000-3000 words",
@@ -18,6 +22,10 @@
     "id": "devops-cicd",
     "name": "DevOps & CI/CD",
     "description": "Automation, deployment pipelines, container orchestration, and infrastructure as code",
+    "slug": "devops-cicd",
+    "color": "#f97316",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z",
     "targetAudience": "DevOps engineers and system administrators",
     "contentStyle": "Production-ready solutions with security and scalability considerations",
     "averageLength": "2500-3500 words",
@@ -42,7 +50,11 @@
       "Optimization techniques",
       "Measurement and validation",
       "Best practices"
-    ]
+    ],
+    "slug": "performance-debugging",
+    "color": "#10b981",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "security-authentication",
@@ -57,7 +69,11 @@
       "Threat mitigation",
       "Testing security",
       "Compliance considerations"
-    ]
+    ],
+    "slug": "security-authentication",
+    "color": "#8b5cf6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "security",
@@ -72,7 +88,11 @@
       "Best practices",
       "Testing and validation",
       "Future considerations"
-    ]
+    ],
+    "slug": "security",
+    "color": "#ec4899",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "database-backend",
@@ -87,7 +107,11 @@
       "Query optimization",
       "Backup and recovery",
       "Scaling strategies"
-    ]
+    ],
+    "slug": "database-backend",
+    "color": "#14b8a6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "database-engineering",
@@ -102,7 +126,11 @@
       "Performance optimization",
       "Scaling strategies",
       "Maintenance and monitoring"
-    ]
+    ],
+    "slug": "database-engineering",
+    "color": "#f59e0b",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "frontend-tools",
@@ -117,7 +145,11 @@
       "Performance optimization",
       "Testing strategies",
       "Deployment and monitoring"
-    ]
+    ],
+    "slug": "frontend-tools",
+    "color": "#ef4444",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "frontend-architecture",
@@ -132,7 +164,11 @@
       "Performance considerations",
       "Testing strategy",
       "Scaling patterns"
-    ]
+    ],
+    "slug": "frontend-architecture",
+    "color": "#6366f1",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "frontend-engineering",
@@ -147,7 +183,11 @@
       "Performance optimization",
       "Testing approach",
       "Best practices"
-    ]
+    ],
+    "slug": "frontend-engineering",
+    "color": "#84cc16",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "cloud-infrastructure",
@@ -162,7 +202,11 @@
       "Cost optimization",
       "Monitoring and alerting",
       "Disaster recovery"
-    ]
+    ],
+    "slug": "cloud-infrastructure",
+    "color": "#3b82f6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "cloud-native-infrastructure",
@@ -177,7 +221,11 @@
       "Deployment strategy",
       "Operational considerations",
       "Performance and scaling"
-    ]
+    ],
+    "slug": "cloud-native-infrastructure",
+    "color": "#f97316",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "cloud-architecture",
@@ -192,7 +240,11 @@
       "Implementation approach",
       "Cost management",
       "Governance and operations"
-    ]
+    ],
+    "slug": "cloud-architecture",
+    "color": "#10b981",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "cloud-security",
@@ -207,7 +259,11 @@
       "Network security",
       "Data protection",
       "Compliance and governance"
-    ]
+    ],
+    "slug": "cloud-security",
+    "color": "#8b5cf6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "data-engineering",
@@ -222,7 +278,11 @@
       "Implementation approach",
       "Scaling considerations",
       "Monitoring and observability"
-    ]
+    ],
+    "slug": "data-engineering",
+    "color": "#ec4899",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "sre-observability",
@@ -237,7 +297,11 @@
       "SLO development",
       "Incident management",
       "Continuous improvement"
-    ]
+    ],
+    "slug": "sre-observability",
+    "color": "#14b8a6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "api-architecture",
@@ -252,7 +316,11 @@
       "Security considerations",
       "Documentation strategy",
       "Versioning and evolution"
-    ]
+    ],
+    "slug": "api-architecture",
+    "color": "#f59e0b",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "api-design",
@@ -267,7 +335,11 @@
       "Implementation patterns",
       "Error handling",
       "Documentation and discoverability"
-    ]
+    ],
+    "slug": "api-design",
+    "color": "#ef4444",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "platform-engineering",
@@ -282,7 +354,11 @@
       "Implementation approach",
       "Self-service capabilities",
       "Platform evolution"
-    ]
+    ],
+    "slug": "platform-engineering",
+    "color": "#6366f1",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "edge-computing",
@@ -297,7 +373,11 @@
       "Connectivity considerations",
       "Data processing patterns",
       "Edge-cloud integration"
-    ]
+    ],
+    "slug": "edge-computing",
+    "color": "#84cc16",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "ai-engineering",
@@ -312,7 +392,11 @@
       "Monitoring and observability",
       "Scaling considerations",
       "Ethical implementation"
-    ]
+    ],
+    "slug": "ai-engineering",
+    "color": "#3b82f6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "distributed-architecture",
@@ -327,7 +411,11 @@
       "Consistency models",
       "Fault tolerance strategies",
       "Performance considerations"
-    ]
+    ],
+    "slug": "distributed-architecture",
+    "color": "#f97316",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "sustainable-tech",
@@ -342,7 +430,11 @@
       "Implementation strategy",
       "Performance considerations",
       "Continuous improvement"
-    ]
+    ],
+    "slug": "sustainable-tech",
+    "color": "#10b981",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "webassembly",
@@ -357,7 +449,11 @@
       "Performance optimization",
       "Integration patterns",
       "Deployment strategy"
-    ]
+    ],
+    "slug": "webassembly",
+    "color": "#8b5cf6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "ml-privacy",
@@ -372,7 +468,11 @@
       "Security considerations",
       "Evaluation methods",
       "Regulatory compliance"
-    ]
+    ],
+    "slug": "ml-privacy",
+    "color": "#ec4899",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "resilience-engineering",
@@ -387,7 +487,11 @@
       "Testing approach",
       "Incident management",
       "Continuous improvement"
-    ]
+    ],
+    "slug": "resilience-engineering",
+    "color": "#14b8a6",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "infrastructure",
@@ -402,7 +506,11 @@
       "Management strategy",
       "Monitoring and maintenance",
       "Scaling considerations"
-    ]
+    ],
+    "slug": "infrastructure",
+    "color": "#f59e0b",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "iot-architecture",
@@ -417,7 +525,11 @@
       "Data management",
       "Security considerations",
       "Scaling strategy"
-    ]
+    ],
+    "slug": "iot-architecture",
+    "color": "#ef4444",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "testing",
@@ -432,7 +544,11 @@
       "Automation framework",
       "Test coverage",
       "CI/CD integration"
-    ]
+    ],
+    "slug": "testing",
+    "color": "#6366f1",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   },
   {
     "id": "computational-design",
@@ -447,6 +563,10 @@
       "Technical framework",
       "Optimization techniques",
       "Practical applications"
-    ]
+    ],
+    "slug": "computational-design",
+    "color": "#84cc16",
+    "createdAt": "2025-05-30T15:25:19.872Z",
+    "updatedAt": "2025-05-30T15:25:19.872Z"
   }
 ]

@@ -38,12 +38,23 @@ async function dbConnect() {
       bufferCommands: false,
     };
 
+    console.log(`🔄 Creating new connection to MongoDB: ${MONGODB_URI.split('@')[1]}`); // Show only the host part for security
     cached.promise = mongoose.createConnection(MONGODB_URI, opts).asPromise();
   }
 
   try {
     cached.conn = await cached.promise;
-    console.log('✅ Connected to blog content database (otman-blog)');
+    console.log(`✅ Connected to blog content database (${cached.conn.name}) with ${cached.conn.models ? Object.keys(cached.conn.models).length : 0} models`);
+    
+    // Check if we can access the database
+    if (cached.conn.db) {
+      try {
+        const collections = await cached.conn.db.listCollections().toArray();
+        console.log(`📚 Found ${collections.length} collections in database: ${collections.map(c => c.name).join(', ')}`);
+      } catch (dbError) {
+        console.error('⚠️ Could not list collections:', dbError);
+      }
+    }
   } catch (e) {
     cached.promise = null;
     console.error('❌ Failed to connect to blog content database:', e);
