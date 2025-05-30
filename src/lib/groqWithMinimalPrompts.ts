@@ -137,7 +137,83 @@ async function parseAndCleanResponse(response: string, modelName: string): Promi
     };
   } catch (error) {
     console.error(`Failed to parse response from ${modelName}:`, error);
-    console.error('Response:', response);
-    throw new Error(`Failed to parse response from ${modelName}`);
+    console.error('Response sample:', response.substring(0, 500) + '...');
+    
+    // Try a more aggressive cleanup approach
+    try {
+      console.log('🔧 Attempting aggressive JSON cleanup...');
+      let cleanedJson = response.trim();
+      
+      // Extract JSON more aggressively
+      const match = cleanedJson.match(/\{[\s\S]*\}/);
+      if (match) {
+        cleanedJson = match[0];
+      }
+      
+      // Step 1: Fix common JSON formatting issues
+      cleanedJson = cleanedJson
+        .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas
+        .replace(/\n/g, '\\n')          // Escape newlines
+        .replace(/\r/g, '\\r')          // Escape carriage returns  
+        .replace(/\t/g, '\\t')          // Escape tabs
+        .replace(/\f/g, '\\f')          // Escape form feeds
+        .replace(/\b/g, '\\b');         // Escape backspaces
+      
+      // Step 2: Try parsing again
+      let parsed = JSON.parse(cleanedJson);
+      
+      if (!parsed.title || !parsed.content) {
+        throw new Error('Missing required fields after first cleanup');
+      }
+      
+      console.log('✅ Successfully parsed JSON after first cleanup attempt');
+      
+      return {
+        title: parsed.title,
+        content: parsed.content,
+        excerpt: parsed.excerpt || parsed.summary || parsed.title,
+        categories: Array.isArray(parsed.categories) ? parsed.categories : [parsed.categories].filter(Boolean),
+        tags: Array.isArray(parsed.tags) ? parsed.tags : [parsed.tags].filter(Boolean)
+      };
+    } catch (secondError) {
+      console.error('🔧 First cleanup failed, trying extreme cleanup:', secondError);
+      
+      // Step 3: Last resort - very aggressive cleanup
+      try {
+        let extremeCleanup = response.trim();
+        
+        // Extract just the JSON part
+        const jsonMatch = extremeCleanup.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          extremeCleanup = jsonMatch[0];
+        }
+        
+        // Replace all problematic characters with safe alternatives
+        extremeCleanup = extremeCleanup
+          .replace(/[\n\r\t\f\b]/g, ' ')  // Replace all control chars with spaces
+          .replace(/\s+/g, ' ')           // Collapse multiple spaces
+          .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas
+          .replace(/\\\\/g, '\\');        // Fix double escapes
+        
+        const parsed = JSON.parse(extremeCleanup);
+        
+        if (!parsed.title || !parsed.content) {
+          throw new Error('Missing required fields after extreme cleanup');
+        }
+        
+        console.log('✅ Successfully parsed JSON after extreme cleanup');
+        
+        return {
+          title: parsed.title,
+          content: parsed.content,
+          excerpt: parsed.excerpt || parsed.summary || parsed.title,
+          categories: Array.isArray(parsed.categories) ? parsed.categories : [parsed.categories].filter(Boolean),
+          tags: Array.isArray(parsed.tags) ? parsed.tags : [parsed.tags].filter(Boolean)
+        };
+      } catch (thirdError) {
+        console.error('❌ All cleanup attempts failed:', thirdError);
+        throw new Error(`Failed to parse response from ${modelName} after all cleanup attempts`);
+      }
+    }
   }
 }
