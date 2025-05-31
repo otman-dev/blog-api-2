@@ -134,6 +134,65 @@ const AutomationManager = () => {
     }
   };
 
+  // Debug function to test environment on Vercel
+  const testDebug = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('Testing debug endpoint...');
+      const response = await apiFetch('/api/debug', { withAuth: false });
+      console.log('Debug response:', response);
+      
+      if (response.success) {
+        setSuccess(`Debug test completed. Check console for details.`);
+        console.log('Environment debug info:', response.debug);
+      } else {
+        setError(`Debug test failed: ${response.error}`);
+      }
+    } catch (err) {
+      console.error('Debug test error:', err);
+      setError(`Debug test error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Test logs API specifically
+  const testLogsAPI = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('Testing logs API directly...');
+      
+      // Make direct fetch to see raw response
+      const response = await fetch('/api/cron/logs');
+      console.log('Logs API response status:', response.status);
+      console.log('Logs API response headers:', Object.fromEntries(response.headers.entries()));
+      
+      const responseText = await response.text();
+      console.log('Logs API raw response:', responseText);
+      
+      if (responseText.trim()) {
+        try {
+          const data = JSON.parse(responseText);
+          console.log('Logs API parsed data:', data);
+          setSuccess(`Logs API test completed. Found ${data.executions?.length || 0} executions.`);
+        } catch (parseError) {
+          setError(`Logs API returned invalid JSON: ${responseText.substring(0, 100)}`);
+        }
+      } else {
+        setError('Logs API returned empty response');
+      }
+    } catch (err) {
+      console.error('Logs API test error:', err);
+      setError(`Logs API test error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadJobs();
     loadStatistics();
@@ -460,26 +519,13 @@ const AutomationManager = () => {
                   {loading ? 'Loading...' : 'Refresh'}
                 </button>
                 <button
-                  onClick={async () => {
-                    try {
-                      setError(null);
-                      const response = await fetch('/api/cron/logs?limit=1');
-                      const data = await response.json();
-                      if (data.success) {
-                        setError('✅ Connection test successful');
-                        setTimeout(() => setError(null), 3000);
-                      } else {
-                        setError(`❌ Test failed: ${data.error}`);
-                      }
-                    } catch (err) {
-                      setError(`❌ Connection failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-                    }
-                  }}
-                  className="bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600"
+                  onClick={testLogsAPI}
+                  disabled={loading}
+                  className="bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600 disabled:opacity-50"
                 >
-                  Test
+                  Test API
                 </button>
-              </div>            </div>
+              </div></div>
           </div>
           
           {/* Error Display */}
@@ -607,21 +653,29 @@ const AutomationManager = () => {
                   {loading ? 'Syncing...' : 'Ready'}
                 </p>
               </div>
-            </div>
-
-            <div>
+            </div>            <div>
               <h4 className="font-medium text-gray-900 mb-3">Sync Operations</h4>
               <div className="space-y-3">
-                <button
-                  onClick={async () => {
-                    await syncJobs();
-                    setLastSyncTime(new Date().toISOString());
-                  }}
-                  disabled={loading}
-                  className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Syncing from cron.org...' : 'Sync Jobs from cron.org'}
-                </button>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={async () => {
+                      await syncJobs();
+                      setLastSyncTime(new Date().toISOString());
+                    }}
+                    disabled={loading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Syncing from cron.org...' : 'Sync Jobs from cron.org'}
+                  </button>
+                  
+                  <button
+                    onClick={testDebug}
+                    disabled={loading}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Debug Environment
+                  </button>
+                </div>
                 
                 <p className="text-sm text-gray-600">
                   This will fetch all jobs from your cron.org account and update the local database for monitoring.
