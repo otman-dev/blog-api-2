@@ -134,19 +134,23 @@ const AutomationManager = () => {
     }
   };
 
-  // Debug function to test environment on Vercel
-  const testDebug = async () => {
+  const testDebugAPI = async () => {
     try {
       setLoading(true);
       setError(null);
+      setSuccess(null);
       
-      console.log('Testing debug endpoint...');
+      console.log('Testing debug API...');
       const response = await apiFetch('/api/debug', { withAuth: false });
-      console.log('Debug response:', response);
+      console.log('Debug API response:', response);
       
       if (response.success) {
-        setSuccess(`Debug test completed. Check console for details.`);
-        console.log('Environment debug info:', response.debug);
+        setSuccess(`Debug Test Complete: 
+          ENV: ${response.debug.environment.nodeEnv || 'unknown'}
+          DB: ${response.debug.database.status}
+          CronService: ${response.debug.cronService.status}
+          ${response.debug.database.error ? `DB Error: ${response.debug.database.error}` : ''}
+          ${response.debug.cronService.error ? `CronService Error: ${response.debug.cronService.error}` : ''}`);
       } else {
         setError(`Debug test failed: ${response.error}`);
       }
@@ -158,32 +162,43 @@ const AutomationManager = () => {
     }
   };
 
-  // Test logs API specifically
   const testLogsAPI = async () => {
     try {
       setLoading(true);
       setError(null);
+      setSuccess(null);
       
       console.log('Testing logs API directly...');
       
-      // Make direct fetch to see raw response
-      const response = await fetch('/api/cron/logs');
+      // Test with raw fetch to see what's happening
+      const response = await fetch('/api/cron/logs', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
       console.log('Logs API response status:', response.status);
       console.log('Logs API response headers:', Object.fromEntries(response.headers.entries()));
       
       const responseText = await response.text();
-      console.log('Logs API raw response:', responseText);
+      console.log('Logs API response text:', responseText);
       
-      if (responseText.trim()) {
-        try {
-          const data = JSON.parse(responseText);
-          console.log('Logs API parsed data:', data);
-          setSuccess(`Logs API test completed. Found ${data.executions?.length || 0} executions.`);
-        } catch (parseError) {
-          setError(`Logs API returned invalid JSON: ${responseText.substring(0, 100)}`);
+      if (responseText.trim() === '') {
+        setError('Empty response from logs API');
+        return;
+      }
+      
+      try {
+        const data = JSON.parse(responseText);
+        if (data.success) {
+          setSuccess(`Logs API test successful: Found ${data.executions?.length || 0} executions`);
+          setExecutions(data.executions || []);
+        } else {
+          setError(`Logs API error: ${data.error}`);
         }
-      } else {
-        setError('Logs API returned empty response');
+      } catch (jsonError) {
+        setError(`JSON parsing error: ${jsonError instanceof Error ? jsonError.message : 'Unknown'}`);
       }
     } catch (err) {
       console.error('Logs API test error:', err);
@@ -228,29 +243,33 @@ const AutomationManager = () => {
       setLoading(true);
       setError(null);
       const url = jobId ? `/api/cron/logs?jobId=${jobId}` : '/api/cron/logs';
-      console.log('Loading logs from:', url);
+      console.log('🔍 Loading logs from:', url);
       
       // Call logs endpoint without authentication since it's read-only monitoring
       const response = await apiFetch(url, { withAuth: false });
-      console.log('Logs response:', response);
+      console.log('🔍 Logs response:', response);
       
       if (response.success) {
         setExecutions(response.executions || []);
         setError(null);
+        console.log('✅ Loaded executions:', response.executions?.length);
       } else {
+        console.error('🚨 Logs API failed:', response.error);
         setError(response.error || 'Failed to load logs');
       }
     } catch (err) {
-      console.error('Logs loading error:', err);
+      console.error('🚨 Logs loading error:', err);
+      console.error('🚨 Error type:', typeof err);
+      console.error('🚨 Error message:', err instanceof Error ? err.message : 'Unknown');
       
       // Retry up to 2 times for network errors
       if (retryCount < 2 && err instanceof Error && err.message.includes('fetch')) {
-        console.log(`Retrying logs fetch... (attempt ${retryCount + 1})`);
+        console.log(`🔄 Retrying logs fetch... (attempt ${retryCount + 1})`);
         setTimeout(() => loadJobLogs(jobId, retryCount + 1), 1000);
         return;
       }
       
-      setError(`Network error occurred${retryCount > 0 ? ' (after retries)' : ''}`);
+      setError(`Network error occurred${retryCount > 0 ? ' (after retries)' : ''}: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -669,7 +688,7 @@ const AutomationManager = () => {
                   </button>
                   
                   <button
-                    onClick={testDebug}
+                    onClick={testDebugAPI}
                     disabled={loading}
                     className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
