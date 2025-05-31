@@ -67,29 +67,68 @@ const AutomationManager = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   // Sync status
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
-
-  // Sync jobs from cron.org
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);  // Sync jobs from cron.org
   const syncJobs = async () => {
     try {
       setLoading(true);
       setError(null);
+      setSuccess(null);
       
-      const response = await apiFetch('/api/cron/sync', {
+      console.log('Calling sync API...');
+      
+      // Make the raw fetch call to get more control over error handling
+      const url = '/api/cron/sync';
+      const token = localStorage.getItem('token');
+      
+      console.log('Using token:', token ? 'Present' : 'Missing');
+      
+      const fetchResponse = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
+      
+      console.log('Fetch response status:', fetchResponse.status);
+      console.log('Fetch response headers:', Object.fromEntries(fetchResponse.headers.entries()));
+      
+      // Get raw text first
+      const rawText = await fetchResponse.text();
+      console.log('Raw response length:', rawText.length);
+      console.log('Raw response:', rawText);
+      
+      if (!rawText.trim()) {
+        setError('Server returned empty response');
+        return;
+      }
+      
+      let response;
+      try {
+        response = JSON.parse(rawText);
+      } catch (jsonError) {
+        console.error('JSON parsing error:', jsonError);
+        setError(`Invalid server response: ${rawText.substring(0, 100)}`);
+        return;
+      }
+
+      console.log('Parsed response:', response);
 
       if (response.success) {
-        setSuccess(`Successfully synced ${response.data?.synced || 0} jobs from cron.org`);
+        setSuccess(`Successfully synced ${response.data?.jobsSynced || 0} jobs from cron.org`);
+        setLastSyncTime(new Date().toLocaleString());
         await loadJobs();
+        await loadStatistics();
       } else {
         setError(response.error || 'Failed to sync jobs');
       }
     } catch (err) {
-      setError('Error syncing jobs from cron.org');
+      console.error('Sync error:', err);
+      if (err instanceof Error && err.message.includes('JSON')) {
+        setError('Server returned invalid response. Check server logs.');
+      } else {
+        setError(`Error syncing jobs: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -125,19 +164,34 @@ const AutomationManager = () => {
     } catch (err) {
       console.error('Failed to load statistics:', err);
     }
-  };
-  const loadJobLogs = async (jobId?: string) => {
+  };  const loadJobLogs = async (jobId?: string, retryCount = 0) => {
     try {
       setLoading(true);
+      setError(null);
       const url = jobId ? `/api/cron/logs?jobId=${jobId}` : '/api/cron/logs';
-      const response = await apiFetch(url);
+      console.log('Loading logs from:', url);
+      
+      // Call logs endpoint without authentication since it's read-only monitoring
+      const response = await apiFetch(url, { withAuth: false });
+      console.log('Logs response:', response);
+      
       if (response.success) {
         setExecutions(response.executions || []);
+        setError(null);
       } else {
         setError(response.error || 'Failed to load logs');
       }
     } catch (err) {
-      setError('Network error occurred');
+      console.error('Logs loading error:', err);
+      
+      // Retry up to 2 times for network errors
+      if (retryCount < 2 && err instanceof Error && err.message.includes('fetch')) {
+        console.log(`Retrying logs fetch... (attempt ${retryCount + 1})`);
+        setTimeout(() => loadJobLogs(jobId, retryCount + 1), 1000);
+        return;
+      }
+      
+      setError(`Network error occurred${retryCount > 0 ? ' (after retries)' : ''}`);
     } finally {
       setLoading(false);
     }
@@ -185,9 +239,9 @@ const AutomationManager = () => {
       default: return 'text-gray-600 bg-gray-100';
     }
   };
-
   return (
-    <div className="space-y-6">      {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Automation Control</h2>
         <div className="flex space-x-2">
@@ -199,11 +253,34 @@ const AutomationManager = () => {
             {loading ? 'Syncing...' : 'Sync Jobs'}
           </button>
           <button
+            onClick={async () => {
+              // Simple test without UI complications
+              try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/cron/sync', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  }
+                });
+                const text = await response.text();
+                console.log('Direct test response:', text);
+                alert(`Direct test result: ${text.substring(0, 200)}`);
+              } catch (e) {
+                console.error('Direct test error:', e);
+                alert(`Direct test error: ${e instanceof Error ? e.message : String(e)}`);
+              }
+            }}
+            className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm"
+          >
+            Test API
+          </button>
+          <button
             onClick={() => { loadJobs(); loadStatistics(); }}
             disabled={loading}
             className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
-          >
-            Refresh
+          >            Refresh
           </button>
         </div>
       </div>
@@ -269,8 +346,7 @@ const AutomationManager = () => {
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-semibold text-gray-900">Success Rate</h3>
-            <p className="text-3xl font-bold text-green-600">
-              {statistics?.totalExecutions 
+            <p className="text-3xl font-bold text-green-600">              {(statistics?.totalExecutions && statistics.totalExecutions > 0)
                 ? Math.round((statistics.successfulExecutions / statistics.totalExecutions) * 100)
                 : 0}%
             </p>
@@ -321,12 +397,12 @@ const AutomationManager = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatSchedule(job.schedule)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </td>                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(job.status)}`}>
                         {job.status}
                       </span>
-                    </td>                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
                         onClick={() => { 
                           setSelectedJob(job._id); 
@@ -350,9 +426,10 @@ const AutomationManager = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
-      )}      {/* Logs Tab */}
+          </div>        </div>
+      )}
+
+      {/* Logs Tab */}
       {activeTab === 'logs' && (
         <div className="bg-white shadow rounded-lg">
           <div className="px-6 py-4 border-b border-gray-200">
@@ -368,8 +445,7 @@ const AutomationManager = () => {
                     Showing all execution logs
                   </p>
                 )}
-              </div>
-              <div className="flex space-x-2">
+              </div>              <div className="flex space-x-2">
                 <button
                   onClick={() => { setSelectedJob(null); loadJobLogs(); }}
                   className="bg-gray-500 text-white px-3 py-1 text-sm rounded hover:bg-gray-600"
@@ -383,9 +459,44 @@ const AutomationManager = () => {
                 >
                   {loading ? 'Loading...' : 'Refresh'}
                 </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      setError(null);
+                      const response = await fetch('/api/cron/logs?limit=1');
+                      const data = await response.json();
+                      if (data.success) {
+                        setError('✅ Connection test successful');
+                        setTimeout(() => setError(null), 3000);
+                      } else {
+                        setError(`❌ Test failed: ${data.error}`);
+                      }
+                    } catch (err) {
+                      setError(`❌ Connection failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                    }
+                  }}
+                  className="bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600"
+                >
+                  Test
+                </button>
+              </div>            </div>
+          </div>
+          
+          {/* Error Display */}
+          {error && (
+            <div className={`px-6 py-3 border-b border-gray-200 ${error?.includes('✅') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+              <div className="flex items-center">
+                <span className="text-sm font-medium">{error}</span>
+                <button 
+                  onClick={() => setError(null)}
+                  className="ml-auto text-xs opacity-60 hover:opacity-100"
+                >
+                  ✕
+                </button>
               </div>
             </div>
-          </div>
+          )}
+          
           <div className="overflow-x-auto">
             {executions.length === 0 ? (
               <div className="px-6 py-8 text-center">
@@ -485,9 +596,8 @@ const AutomationManager = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Last Sync</h4>
-                <p className="text-sm text-gray-600">
-                  {lastSyncTime ? new Date(lastSyncTime).toLocaleString() : 'Never'}
+                <h4 className="font-medium text-gray-900 mb-2">Last Sync</h4>                <p className="text-sm text-gray-600">
+                  {lastSyncTime ? lastSyncTime : 'Never'}
                 </p>
               </div>
               

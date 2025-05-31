@@ -176,7 +176,6 @@ export class CronService {
       this.cronExecutionModel = connection.models.CronExecution || connection.model<ICronExecution>('CronExecution', CronExecutionSchema);
     }
   }
-
   private async apiRequest(endpoint: string, method: string = 'GET', data?: any): Promise<CronOrgResponse> {
     try {
       const headers: HeadersInit = {
@@ -193,8 +192,59 @@ export class CronService {
         config.body = JSON.stringify(data);
       }
 
+      console.log(`Making cron.org API request: ${method} ${this.baseUrl}${endpoint}`);
       const response = await fetch(`${this.baseUrl}${endpoint}`, config);
-      const responseData = await response.json();
+      console.log(`Cron.org API response status: ${response.status}`);
+      
+      // Get response text first to handle empty responses
+      const responseText = await response.text();
+      console.log(`Cron.org API response text length: ${responseText.length}`);
+      console.log(`Cron.org API response text: ${responseText.substring(0, 200)}...`);
+      
+      // Handle rate limiting (429) specifically
+      if (response.status === 429) {
+        return {
+          success: false,
+          error: {
+            message: 'Rate limit exceeded for cron.org API. Please wait before trying again.',
+            code: 429
+          }
+        };
+      }
+      
+      let responseData;
+      
+      // Handle empty responses
+      if (responseText.trim() === '') {
+        if (response.ok) {
+          // Empty response but successful status - treat as empty success
+          responseData = {};
+        } else {
+          // Empty response with error status
+          return {
+            success: false,
+            error: {
+              message: `Empty response from cron.org API with status ${response.status}: ${response.statusText}`,
+              code: response.status
+            }
+          };
+        }
+      } else {
+        // Try to parse non-empty response
+        try {
+          responseData = JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error('JSON parsing error:', jsonError);
+          console.error('Raw response text:', responseText);
+          return {
+            success: false,
+            error: {
+              message: `Invalid JSON response from cron.org: ${responseText.substring(0, 100)}`,
+              code: response.status
+            }
+          };
+        }
+      }
 
       if (!response.ok) {
         return {
@@ -633,21 +683,29 @@ export class CronService {
       };
     }
   }
-
   async getAllExecutions(limit: number = 50): Promise<{ success: boolean; executions?: ICronExecution[]; error?: string }> {
     try {
+      console.log('Getting all executions with limit:', limit);
       await this.initializeModels();
+
+      if (!this.cronExecutionModel) {
+        throw new Error('Execution model not initialized');
+      }
 
       const executions = await this.cronExecutionModel
         .find({})
         .sort({ startTime: -1 })
-        .limit(limit);
+        .limit(limit)
+        .lean(); // Use lean() for better performance
+
+      console.log('Found executions:', executions.length);
 
       return {
         success: true,
         executions
       };
     } catch (error) {
+      console.error('Error in getAllExecutions:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch executions'
