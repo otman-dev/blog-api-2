@@ -118,78 +118,177 @@ export default function GroqModelsManager({ isVisible }: GroqModelsManagerProps)
   };
 
   if (!isVisible) return null;
-
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Groq Models Management</h2>
+    <div className="space-y-6">      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-inkbot-500 to-inkbot-400 rounded-xl flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>            <h2 className="text-2xl font-bold text-white">Groq Models</h2>
+            <p className="text-gray-300">Manage AI models for content generation</p>
+          </div>
+        </div>
+        
         <button
           onClick={handleAdd}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-inkbot-500 to-inkbot-400 hover:from-inkbot-600 hover:to-inkbot-500 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-inkbot-500/20"
         >
-          Add New Model
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>          <span className="hidden sm:inline">New Model</span>
+          <span className="sm:hidden">New</span>
         </button>
-      </div>
-
+      </div>      {/* Loading State */}
       {loading && (
-        <div className="text-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+        <div className="flex items-center justify-center py-12">
+          <div className="flex items-center gap-3">
+            <svg className="w-6 h-6 animate-spin text-inkbot-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="text-gray-300 font-medium">Loading models...</span>
+          </div>
         </div>
       )}
 
-      {/* Models List */}
-      <div className="grid gap-4 mb-6">
-        {models.map((model) => (
-          <div key={model._id || model.id} className="border rounded-lg p-4 bg-gray-50">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">{model.name}</h3>
-                <p className="text-sm text-gray-600">ID: {model.id}</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-sm">
-                  <span><strong>Priority:</strong> {model.priority}</span>
-                  <span><strong>Tokens/min:</strong> {model.tokensPerMinute}</span>
-                  <span><strong>Daily Limit:</strong> {model.dailyLimit}</span>
-                  <span><strong>Temperature:</strong> {model.temperature}</span>
+      {/* Models Grid */}
+      {!loading && (        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {models.map((model) => (
+            <div key={model._id || model.id} className="group bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border border-white/10 p-6 hover:shadow-xl transition-all duration-300 hover:transform hover:scale-[1.02]">
+              {/* Model Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-white mb-1 group-hover:text-inkbot-400 transition-colors">
+                    {model.name}
+                  </h3>
+                  <p className="text-sm text-gray-400 font-mono bg-white/10 px-2 py-1 rounded">
+                    {model.id}
+                  </p>
                 </div>
-                <div className="mt-2">
-                  <strong>Best For:</strong> {model.bestFor.join(', ')}
+                <div className="flex items-center gap-1 ml-4">
+                  <button
+                    onClick={() => handleEdit(model)}
+                    className="p-2 text-gray-400 hover:text-inkbot-400 hover:bg-white/10 rounded-lg transition-all duration-200"
+                    title="Edit"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(model.id)}
+                    className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                    title="Delete"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-2 ml-4">
-                <button
-                  onClick={() => handleEdit(model)}
-                  className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(model.id)}
-                  className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Form Modal */}
+              {/* Model Stats */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-gradient-to-br from-inkbot-500/20 to-inkbot-400/20 p-3 rounded-xl border border-inkbot-400/20">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-inkbot-400">Priorité</span>
+                    <div className={`w-2 h-2 rounded-full ${model.priority >= 8 ? 'bg-green-500' : model.priority >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                  </div>
+                  <span className="text-lg font-bold text-white">{model.priority}</span>
+                </div>
+                
+                <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-3 rounded-xl border border-green-400/20">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-green-400">Tokens/min</span>
+                    <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                  <span className="text-lg font-bold text-white">{model.tokensPerMinute.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Model Details */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-400">Limite quotidienne:</span>
+                  <span className="font-semibold text-white">{model.dailyLimit}</span>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-400">Température:</span>
+                  <span className="font-semibold text-white">{model.temperature}</span>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-400">Max Tokens:</span>
+                  <span className="font-semibold text-white">{model.maxTokens.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Best For Tags */}
+              {model.bestFor && model.bestFor.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <span className="text-xs font-medium text-gray-400 mb-2 block">Ideal for:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {model.bestFor.slice(0, 3).map((tag, index) => (
+                      <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-inkbot-500/20 text-inkbot-300 border border-inkbot-400/20">
+                        {tag}
+                      </span>
+                    ))}
+                    {model.bestFor.length > 3 && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300 border border-white/20">
+                        +{model.bestFor.length - 3}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}      {/* Empty State */}
+      {!loading && models.length === 0 && (
+        <div className="text-center py-16">
+          <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">No models configured</h3>
+          <p className="text-gray-400 mb-6">Commencez par ajouter votre premier modèle Groq</p>
+          <button
+            onClick={handleAdd}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-inkbot-500 to-inkbot-400 hover:from-inkbot-600 hover:to-inkbot-500 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-inkbot-500/20"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Ajouter un modèle
+          </button>
+        </div>
+      )}      {/* Form Modal */}
       {isFormVisible && editingModel && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold mb-4">
-              {editingModel._id ? 'Edit Model' : 'Add New Model'}
-            </h3>
-            <GroqModelForm
-              model={editingModel}
-              onSave={handleSave}
-              onCancel={() => {
-                setIsFormVisible(false);
-                setEditingModel(null);
-              }}
-              loading={loading}
-            />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900/95 backdrop-blur-sm rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10">
+            <div className="sticky top-0 bg-gray-900/90 backdrop-blur-sm border-b border-white/10 px-6 py-4 rounded-t-2xl">
+              <h3 className="text-xl font-bold text-white">
+                {editingModel._id ? 'Edit Model' : 'New Model'}
+              </h3>
+            </div>
+            <div className="p-6">
+              <GroqModelForm
+                model={editingModel}
+                onSave={handleSave}
+                onCancel={() => {
+                  setIsFormVisible(false);
+                  setEditingModel(null);
+                }}
+                loading={loading}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -216,62 +315,72 @@ function GroqModelForm({ model, onSave, onCancel, loading }: GroqModelFormProps)
     const items = value.split(',').map(item => item.trim()).filter(item => item);
     setFormData({ ...formData, [field]: items });
   };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">ID</label>
+  return (    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-300">ID du modèle</label>
           <input
             type="text"
             value={formData.id}
             onChange={(e) => setFormData({ ...formData, id: e.target.value })}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
+            placeholder="llama-3.1-70b-versatile"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-300">Nom du modèle</label>
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
+            placeholder="Llama 3.1 70B Versatile"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Priority</label>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-300">Priorité</label>
           <input
             type="number"
+            min="1"
+            max="10"
             value={formData.priority}
             onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
           />
+          <p className="text-xs text-gray-400">1 = faible, 10 = élevée</p>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Tokens Per Minute</label>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-300">Tokens par minute</label>
           <input
             type="number"
             value={formData.tokensPerMinute}
             onChange={(e) => setFormData({ ...formData, tokensPerMinute: parseInt(e.target.value) })}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
+            placeholder="6000"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Daily Limit</label>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-300">Limite quotidienne</label>
           <input
             type="text"
             value={formData.dailyLimit}
             onChange={(e) => setFormData({ ...formData, dailyLimit: e.target.value })}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
+            placeholder="unlimited ou 100000"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Temperature</label>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-300">Température</label>
           <input
             type="number"
             step="0.1"
@@ -280,46 +389,60 @@ function GroqModelForm({ model, onSave, onCancel, loading }: GroqModelFormProps)
             value={formData.temperature}
             onChange={(e) => setFormData({ ...formData, temperature: parseFloat(e.target.value) })}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
+            placeholder="0.7"
           />
+          <p className="text-xs text-gray-400">0.0 = déterministe, 2.0 = créatif</p>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Max Tokens</label>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-300">Tokens maximum</label>
           <input
             type="number"
             value={formData.maxTokens}
             onChange={(e) => setFormData({ ...formData, maxTokens: parseInt(e.target.value) })}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
+            placeholder="4000"
           />
         </div>
       </div>
       
-      <div>
-        <label className="block text-sm font-medium mb-1">Best For (comma-separated)</label>
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-300">Ideal for (comma separated)</label>
         <input
           type="text"
           value={formData.bestFor.join(', ')}
           onChange={(e) => handleArrayChange('bestFor', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., code generation, explanations, creative writing"
+          className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 bg-white/10 focus:bg-white/20 text-white placeholder-gray-400"
+          placeholder="génération de code, explications, écriture créative"
         />
+        <p className="text-xs text-gray-400">Describe the optimal use cases for this model</p>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-white/10">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+          className="px-6 py-3 bg-white/10 hover:bg-white/20 text-gray-300 rounded-xl font-semibold transition-all duration-200 order-2 sm:order-1"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors disabled:opacity-50"
+          className="px-6 py-3 bg-gradient-to-r from-inkbot-500 to-inkbot-400 hover:from-inkbot-600 hover:to-inkbot-500 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-inkbot-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 order-1 sm:order-2"
         >
-          {loading ? 'Saving...' : 'Save'}
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Enregistrement...
+            </span>
+          ) : (
+            'Save'
+          )}
         </button>
       </div>
     </form>

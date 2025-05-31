@@ -7,21 +7,28 @@ import { AuthProvider } from '@/components/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Auto Blog Generator',
-  description: 'AI-powered blog generation using Groq API',
+  title: 'InkBot - AI-Powered Blog Generation',
+  description: 'InkBot: Intelligent AI-powered blog generation using advanced Groq API technology',
+  icons: {
+    icon: '/InkBotLogo4.png',
+    apple: '/InkBotLogo4.png',
+  },
+  keywords: ['AI', 'blog generation', 'InkBot', 'artificial intelligence', 'content creation', 'Groq API'],
+  authors: [{ name: 'InkBot Team' }],
+  creator: 'InkBot',
+  publisher: 'InkBot',
 }
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
-}) {
-  return (
+}) {  return (
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
           <Header />
-          <main className="min-h-screen bg-gray-50">
+          <main className="min-h-screen bg-gray-950">
             {children}
           </main>
         </AuthProvider>

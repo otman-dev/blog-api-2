@@ -56,27 +56,24 @@ export default function BlogForm({ onSubmit, loading = false, initialData }: Blo
     const tags = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag);
     setFormData({ ...formData, tags });
   };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-white/10">
         <div className="flex items-center mb-6">
           <input
             type="checkbox"
             id="useGroq"
             checked={useGroq}
             onChange={(e) => setUseGroq(e.target.checked)}
-            className="mr-2"
+            className="mr-2 text-inkbot-500 bg-white/10 border-white/20 rounded focus:ring-inkbot-500"
           />
-          <label htmlFor="useGroq" className="text-sm font-medium text-gray-700">
+          <label htmlFor="useGroq" className="text-sm font-medium text-gray-200">
             Generate content using Groq AI
           </label>
-        </div>
-
-        {useGroq ? (
+        </div>        {useGroq ? (
           <div className="space-y-4">
             <div>
-              <label htmlFor="topic" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="topic" className="block text-sm font-medium text-gray-200">
                 Topic
               </label>
               <input
@@ -84,7 +81,7 @@ export default function BlogForm({ onSubmit, loading = false, initialData }: Blo
                 id="topic"
                 value={formData.topic}
                 onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md bg-white/10 border-white/20 text-white placeholder-gray-400 shadow-sm focus:border-inkbot-500 focus:ring-inkbot-500"
                 placeholder="Enter the topic for your blog post"
                 required={useGroq}
               />
@@ -92,7 +89,7 @@ export default function BlogForm({ onSubmit, loading = false, initialData }: Blo
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="tone" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="tone" className="block text-sm font-medium text-gray-200">
                   Tone
                 </label>
                 <select

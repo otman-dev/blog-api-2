@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import InkBotLogo from '@/components/InkBotLogo';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -39,25 +40,30 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  };
+  };  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-950 relative">
+      {/* Dark background with subtle gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-gray-950 to-black/90"></div>
+      
+      <div className="max-w-md w-full p-8 space-y-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl relative z-10">
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Sign In</h1>
-          <p className="mt-2 text-gray-600">Access Blog Generator Dashboard</p>
+          <div className="flex justify-center mb-4">
+            <InkBotLogo size="lg" className="filter brightness-110" />
+          </div>
+          <h1 className="text-2xl font-bold text-white">Sign In to InkBot</h1>
+          <p className="mt-2 text-gray-600">Access your AI-powered blog dashboard</p>          <p className="mt-2 text-gray-300">Welcome back to your AI content platform</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 p-4 rounded-md border border-red-200">
-            <p className="text-red-600 text-sm">{error}</p>
+          <div className="bg-red-900/20 border border-red-700/30 p-4 rounded-md">
+            <p className="text-red-300 text-sm">{error}</p>
           </div>
         )}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-200">
               Email Address
             </label>
             <input
@@ -68,12 +74,12 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-inkbot-500 transition-all duration-200"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-200">
               Password
             </label>
             <input
@@ -84,7 +90,7 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-inkbot-500 transition-all duration-200"
             />
           </div>
 
@@ -92,7 +98,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-inkbot-600 hover:bg-inkbot-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-inkbot-500 disabled:opacity-50 transition-all duration-200"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

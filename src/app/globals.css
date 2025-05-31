@@ -1,3 +1,104 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* InkBot Brand Base Styles */
+@layer base {
+  html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+    body {
+    overflow-x: hidden;
+    background-color: #020617;
+    color: #f8fafc;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #0ea5e9;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #0284c7;
+  }
+}
+
+/* InkBot Component Styles */
+@layer components {
+  .btn-inkbot {
+    @apply bg-gradient-inkbot text-white font-semibold py-3 px-6 rounded-xl 
+           shadow-inkbot hover:shadow-inkbot-lg transform hover:-translate-y-0.5 
+           transition-all duration-300 ease-out;
+  }
+
+  .btn-inkbot:hover {
+    @apply scale-105;
+  }
+
+  .btn-inkbot-outline {
+    @apply border-2 border-inkbot-500 text-inkbot-600 font-semibold py-3 px-6 
+           rounded-xl hover:bg-inkbot-500 hover:text-white transition-all duration-300;
+  }
+
+  .card-inkbot {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 
+           hover:shadow-inkbot-lg transform hover:-translate-y-1 transition-all duration-300;
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-inkbot-400 via-inkbot-300 to-inkbot-500 
+           bg-clip-text text-transparent;
+  }
+
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  }
+
+  .nav-link {
+    @apply text-gray-700 hover:text-inkbot-600 px-4 py-2 rounded-lg 
+           font-medium transition-all duration-200 hover:bg-inkbot-50;
+  }
+
+  .input-inkbot {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl 
+           focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-inkbot-500
+           transition-all duration-200 bg-white/50 backdrop-blur-sm;
+  }
+}
+
+/* Hide scrollbars utility */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}

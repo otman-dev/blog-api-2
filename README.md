@@ -1,6 +1,6 @@
-# IT/Software Engineering Blog Generator
+# InkBot - AI-Powered Blog Generation Platform
 
-Un système automatisé de génération d'articles de blog techniques utilisant l'API Groq et MongoDB.
+Un système automatisé intelligent de génération d'articles de blog techniques utilisant l'API Groq et MongoDB, alimenté par InkBot.
 
 ## Fonctionnalités
 
