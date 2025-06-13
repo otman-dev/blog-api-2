@@ -27,18 +27,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-
-  // Initialize auth state from localStorage
+  // Initialize auth state from localStorage and validate token
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const validateStoredToken = async () => {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (storedToken && storedUser) {
+        try {
+          // Validate the token with the server
+          const response = await fetch('/api/validate-token', {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const data = await response.json();
+          
+          if (data.success && data.valid) {
+            // Token is valid, use it
+            setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+          } else {
+            // Token is invalid, clear it
+            console.log('🔒 Stored token is invalid, clearing...');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
+        } catch (error) {
+          // If validation fails, clear the token
+          console.log('🔒 Token validation failed, clearing...');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+      
+      setLoading(false);
+    };
     
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    
-    setLoading(false);
+    validateStoredToken();
   }, []);
   // Protection for authenticated routes
   useEffect(() => {

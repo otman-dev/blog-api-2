@@ -61,7 +61,18 @@ export async function apiFetch<T = any>(
     }    // Parse the JSON response
     try {
       const data = JSON.parse(text);
-      console.log('✅ apiFetch success:', { success: data.success, hasData: !!data });
+      console.log('✅ apiFetch response:', { 
+        status: response.status, 
+        success: data.success, 
+        hasData: !!data,
+        error: data.error 
+      });
+      
+      // If response status is 401, it's an authentication error
+      if (response.status === 401) {
+        console.log('🔒 Authentication error detected in apiFetch');
+      }
+      
       // Return data even if response is not "ok"
       // The API might return success: false with a message
       // and we want to handle that in the component

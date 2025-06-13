@@ -11,7 +11,7 @@ import AutomationManager from '@/components/AutomationManager';
 import InkBotLogo from '@/components/InkBotLogo';
 
 export default function DashboardPage() {
-  const { token, isAuthenticated } = useAuth();
+  const { token, isAuthenticated, logout } = useAuth();
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const [posts, setPosts] = useState([]);
@@ -78,16 +78,19 @@ export default function DashboardPage() {
       console.error('Error fetching posts:', error);
     }
   };
-
   const checkGenerationStatus = async () => {
     try {
       const response = await apiFetch('/api/automation-state');
       if (response.success) {
         setIsGenerating(response.data.isActive);
         console.log('✅ Loaded automation state from database:', response.data.isActive);
+      } else if (response.error && response.error.includes('Authentication required')) {
+        console.log('🔒 Authentication expired, logging out...');
+        logout();
       }
     } catch (error) {
       console.error('Error checking automation state:', error);
+      // If it's a network error or other issue, don't auto-logout
     }
   };
 

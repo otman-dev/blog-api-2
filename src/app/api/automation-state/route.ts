@@ -8,8 +8,9 @@ export async function GET(request: NextRequest) {
     try {
       await requireAuth(request);
     } catch (error) {
+      console.log('🔍 Authentication failed for automation-state:', error);
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
+        { success: false, error: 'Authentication required. Please log in again.' },
         { status: 401 }
       );
     }
@@ -36,6 +37,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication before proceeding
+    try {
+      await requireAuth(request);
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { isActive } = body;
 
