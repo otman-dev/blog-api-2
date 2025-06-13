@@ -16,7 +16,9 @@ export default function DashboardPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [intervalText, setIntervalText] = useState('Loading...');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Modern SVG Icon Component
   const TabIcon = ({ type, className = "w-5 h-5" }: { type: string; className?: string }) => {
@@ -59,13 +61,13 @@ export default function DashboardPage() {
     { id: 'automation', name: 'Automation', shortName: 'Cron Jobs' }
   ];
 
-  useEffect(() => {
-    if (!isAuthenticated) {
+  useEffect(() => {    if (!isAuthenticated) {
       router.push('/login');
       return;
     }
     fetchPosts();
     checkGenerationStatus();
+    fetchCronInterval();
   }, [isAuthenticated, router]);
 
   const fetchPosts = async () => {
@@ -83,6 +85,7 @@ export default function DashboardPage() {
       const response = await apiFetch('/api/automation-state');
       if (response.success) {
         setIsGenerating(response.data.isActive);
+        setIntervalText(`${response.data.intervalMinutes} minutes`);
         console.log('✅ Loaded automation state from database:', response.data.isActive);
       } else if (response.error && response.error.includes('Authentication required')) {
         console.log('🔒 Authentication expired, logging out...');
@@ -91,6 +94,35 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error checking automation state:', error);
       // If it's a network error or other issue, don't auto-logout
+    }
+  };
+
+  const fetchCronInterval = async () => {
+    try {
+      const response = await apiFetch('/api/cron-interval');
+      if (response.success) {
+        const { intervalMinutes } = response.data;
+        if (intervalMinutes === 1) {
+          setIntervalText('1 minute');
+        } else if (intervalMinutes < 60) {
+          setIntervalText(`${intervalMinutes} minutes`);
+        } else {
+          const hours = Math.floor(intervalMinutes / 60);
+          const mins = intervalMinutes % 60;
+          if (mins === 0) {
+            setIntervalText(hours === 1 ? '1 hour' : `${hours} hours`);
+          } else {
+            setIntervalText(`${hours}h ${mins}min`);
+          }
+        }
+        console.log('✅ Loaded cron interval:', intervalMinutes, 'minutes');
+      } else {
+        console.warn('Failed to fetch cron interval, using default');
+        setIntervalText('10 minutes');
+      }
+    } catch (error) {
+      console.error('Error fetching cron interval:', error);
+      setIntervalText('10 minutes'); // Fallback
     }
   };
 
@@ -248,7 +280,7 @@ export default function DashboardPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
-                      <p className="text-xl font-bold text-inkbot-400">10 minutes</p>
+                      <p className="text-xl font-bold text-inkbot-400">{intervalText}</p>
                     </div>
                     
                     <div className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 shadow-sm sm:col-span-2 lg:col-span-1">

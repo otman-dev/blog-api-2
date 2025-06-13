@@ -630,7 +630,7 @@ const AutomationManager = () => {
                       </span>
                     </button>
                     <a
-                      href="https://cron.org"
+                      href="https://cron-job.org"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group relative px-4 py-2 bg-gradient-to-r from-inkbot-500 to-inkbot-600 hover:from-inkbot-600 hover:to-inkbot-700 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-inkbot-500/20 text-sm"
@@ -881,12 +881,12 @@ const AutomationManager = () => {
                     This system monitors existing cron jobs from your cron.org account. 
                     To create new jobs, please use the{' '}
                     <a 
-                      href="https://cron.org" 
+                      href="https://cron-job.org" 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="underline font-medium text-blue-100 hover:text-white transition-colors"
                     >
-                      cron.org dashboard
+                      cron-job.org dashboard
                     </a>{' '}
                     directly.
                   </p>
@@ -974,7 +974,7 @@ const AutomationManager = () => {
                   To create new automation jobs, please visit the cron.org dashboard:
                 </p>
                 <a
-                  href="https://cron.org"
+                  href="https://cron-job.org"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center px-4 sm:px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg shadow-green-500/20 text-sm"
