@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
+import Pagination from './Pagination';
 
 interface GroqModel {
   _id?: string;
@@ -24,6 +25,9 @@ export default function GroqModelsManager({ isVisible }: GroqModelsManagerProps)
   const [loading, setLoading] = useState(false);
   const [editingModel, setEditingModel] = useState<GroqModel | null>(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const MODELS_PER_PAGE = 6;
 
   useEffect(() => {
     if (isVisible) {
@@ -102,7 +106,6 @@ export default function GroqModelsManager({ isVisible }: GroqModelsManagerProps)
     setEditingModel(model);
     setIsFormVisible(true);
   };
-
   const handleAdd = () => {
     setEditingModel({
       id: '',
@@ -116,6 +119,26 @@ export default function GroqModelsManager({ isVisible }: GroqModelsManagerProps)
     });
     setIsFormVisible(true);
   };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(models.length / MODELS_PER_PAGE);
+  const startIndex = (currentPage - 1) * MODELS_PER_PAGE;
+  const endIndex = startIndex + MODELS_PER_PAGE;
+  const currentModels = models.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of the models section smoothly
+    const modelsSection = document.getElementById('models-grid');
+    if (modelsSection) {
+      modelsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Reset to first page when models change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [models.length]);
 
   if (!isVisible) return null;
   return (
@@ -151,105 +174,131 @@ export default function GroqModelsManager({ isVisible }: GroqModelsManagerProps)
             <span className="text-gray-300 font-medium">Loading models...</span>
           </div>
         </div>
-      )}
-
-      {/* Models Grid */}
-      {!loading && (        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {models.map((model) => (
-            <div key={model._id || model.id} className="group bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border border-white/10 p-6 hover:shadow-xl transition-all duration-300 hover:transform hover:scale-[1.02]">
-              {/* Model Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-white mb-1 group-hover:text-inkbot-400 transition-colors">
-                    {model.name}
-                  </h3>
-                  <p className="text-sm text-gray-400 font-mono bg-white/10 px-2 py-1 rounded">
-                    {model.id}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 ml-4">
-                  <button
-                    onClick={() => handleEdit(model)}
-                    className="p-2 text-gray-400 hover:text-inkbot-400 hover:bg-white/10 rounded-lg transition-all duration-200"
-                    title="Edit"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(model.id)}
-                    className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200"
-                    title="Delete"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Model Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-gradient-to-br from-inkbot-500/20 to-inkbot-400/20 p-3 rounded-xl border border-inkbot-400/20">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-inkbot-400">Priorité</span>
-                    <div className={`w-2 h-2 rounded-full ${model.priority >= 8 ? 'bg-green-500' : model.priority >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
-                  </div>
-                  <span className="text-lg font-bold text-white">{model.priority}</span>
-                </div>
-                
-                <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-3 rounded-xl border border-green-400/20">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-green-400">Tokens/min</span>
-                    <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                  </div>
-                  <span className="text-lg font-bold text-white">{model.tokensPerMinute.toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* Model Details */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Limite quotidienne:</span>
-                  <span className="font-semibold text-white">{model.dailyLimit}</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Température:</span>
-                  <span className="font-semibold text-white">{model.temperature}</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Max Tokens:</span>
-                  <span className="font-semibold text-white">{model.maxTokens.toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* Best For Tags */}
-              {model.bestFor && model.bestFor.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-white/10">
-                  <span className="text-xs font-medium text-gray-400 mb-2 block">Ideal for:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {model.bestFor.slice(0, 3).map((tag, index) => (
-                      <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-inkbot-500/20 text-inkbot-300 border border-inkbot-400/20">
-                        {tag}
-                      </span>
-                    ))}
-                    {model.bestFor.length > 3 && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300 border border-white/20">
-                        +{model.bestFor.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
+      )}      {/* Models Grid */}
+      {!loading && models.length > 0 && (
+        <div id="models-grid" className="space-y-6">
+          {/* Models Count Info */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-400">
+            <div>
+              Showing {startIndex + 1}-{Math.min(endIndex, models.length)} of {models.length} models
             </div>
-          ))}
+            {totalPages > 1 && (
+              <div className="text-right">
+                Page {currentPage} of {totalPages}
+              </div>
+            )}
+          </div>
+
+          {/* Models Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {currentModels.map((model) => (
+              <div key={model._id || model.id} className="group bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border border-white/10 p-6 hover:shadow-xl transition-all duration-300 hover:transform hover:scale-[1.02]">
+                {/* Model Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-inkbot-400 transition-colors">
+                      {model.name}
+                    </h3>
+                    <p className="text-sm text-gray-400 font-mono bg-white/10 px-2 py-1 rounded">
+                      {model.id}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 ml-4">
+                    <button
+                      onClick={() => handleEdit(model)}
+                      className="p-2 text-gray-400 hover:text-inkbot-400 hover:bg-white/10 rounded-lg transition-all duration-200"
+                      title="Edit"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(model.id)}
+                      className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                      title="Delete"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Model Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-gradient-to-br from-inkbot-500/20 to-inkbot-400/20 p-3 rounded-xl border border-inkbot-400/20">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-inkbot-400">Priorité</span>
+                      <div className={`w-2 h-2 rounded-full ${model.priority >= 8 ? 'bg-green-500' : model.priority >= 5 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                    </div>
+                    <span className="text-lg font-bold text-white">{model.priority}</span>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-3 rounded-xl border border-green-400/20">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-green-400">Tokens/min</span>
+                      <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                    <span className="text-lg font-bold text-white">{model.tokensPerMinute.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Model Details */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Limite quotidienne:</span>
+                    <span className="font-semibold text-white">{model.dailyLimit}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Température:</span>
+                    <span className="font-semibold text-white">{model.temperature}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Max Tokens:</span>
+                    <span className="font-semibold text-white">{model.maxTokens.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Best For Tags */}
+                {model.bestFor && model.bestFor.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <span className="text-xs font-medium text-gray-400 mb-2 block">Ideal for:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {model.bestFor.slice(0, 3).map((tag, index) => (
+                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-inkbot-500/20 text-inkbot-300 border border-inkbot-400/20">
+                          {tag}
+                        </span>
+                      ))}
+                      {model.bestFor.length > 3 && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300 border border-white/20">
+                          +{model.bestFor.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                className="w-full max-w-md"
+              />
+            </div>
+          )}
         </div>
-      )}      {/* Empty State */}
+      )}{/* Empty State */}
       {!loading && models.length === 0 && (
         <div className="text-center py-16">
           <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
