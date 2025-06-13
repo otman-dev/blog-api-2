@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../lib/apiFetch';
+import Pagination from './Pagination';
 
 interface CronJob {
   _id: string;
@@ -66,8 +67,31 @@ const AutomationManager = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  // Sync status
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);  // Sync jobs from cron.org
+  const [currentLogPage, setCurrentLogPage] = useState(1);
+  
+  const LOGS_PER_PAGE = 10;
+    // Sync status
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+
+  // Pagination calculations for logs
+  const totalLogPages = Math.ceil(executions.length / LOGS_PER_PAGE);
+  const startLogIndex = (currentLogPage - 1) * LOGS_PER_PAGE;
+  const endLogIndex = startLogIndex + LOGS_PER_PAGE;
+  const currentExecutions = executions.slice(startLogIndex, endLogIndex);
+
+  const handleLogPageChange = (page: number) => {
+    setCurrentLogPage(page);
+    // Scroll to top of the logs section smoothly
+    const logsSection = document.getElementById('logs-section');
+    if (logsSection) {
+      logsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Reset to first page when executions change or tab changes
+  useEffect(() => {
+    setCurrentLogPage(1);
+  }, [executions.length, activeTab, selectedJob]);// Sync jobs from cron.org
   const syncJobs = async () => {
     try {
       setLoading(true);
@@ -711,8 +735,7 @@ const AutomationManager = () => {
                 </button>
               </div>
             </div>
-          )}
-            <div className="p-4 sm:p-6">
+          )}          <div className="p-4 sm:p-6" id="logs-section">
             {executions.length === 0 ? (
               <div className="py-12 text-center">
                 <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -731,6 +754,18 @@ const AutomationManager = () => {
               </div>
             ) : (
               <>
+                {/* Logs Count Info */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-400 mb-6">
+                  <div>
+                    Showing {startLogIndex + 1}-{Math.min(endLogIndex, executions.length)} of {executions.length} execution logs
+                  </div>
+                  {totalLogPages > 1 && (
+                    <div className="text-right">
+                      Page {currentLogPage} of {totalLogPages}
+                    </div>
+                  )}
+                </div>
+
                 {/* Desktop Table View */}
                 <div className="hidden lg:block overflow-x-auto">
                   <table className="min-w-full">
@@ -754,7 +789,7 @@ const AutomationManager = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10">
-                      {executions.map((execution) => (
+                      {currentExecutions.map((execution) => (
                         <tr key={execution._id} className="hover:bg-white/5 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                             {new Date(execution.startTime).toLocaleString()}
@@ -797,7 +832,7 @@ const AutomationManager = () => {
 
                 {/* Mobile Card View */}
                 <div className="lg:hidden space-y-4">
-                  {executions.map((execution) => (
+                  {currentExecutions.map((execution) => (
                     <div key={execution._id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all duration-300">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1 min-w-0">
@@ -853,6 +888,18 @@ const AutomationManager = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Pagination */}
+                {totalLogPages > 1 && (
+                  <div className="mt-8 flex justify-center">
+                    <Pagination
+                      currentPage={currentLogPage}
+                      totalPages={totalLogPages}
+                      onPageChange={handleLogPageChange}
+                      className="w-full max-w-md"
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>

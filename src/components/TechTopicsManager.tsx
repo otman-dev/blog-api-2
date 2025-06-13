@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
+import Pagination from './Pagination';
 
 interface TechTopic {
   _id?: string;
@@ -26,6 +27,9 @@ export default function TechTopicsManager({ isVisible }: TechTopicsManagerProps)
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const TOPICS_PER_PAGE = 6;
 
   useEffect(() => {
     if (isVisible) {
@@ -127,12 +131,31 @@ export default function TechTopicsManager({ isVisible }: TechTopicsManagerProps)
       default: return '📝';
     }
   };
-
   const filteredTopics = topics.filter(topic =>
     topic.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
     topic.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     topic.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredTopics.length / TOPICS_PER_PAGE);
+  const startIndex = (currentPage - 1) * TOPICS_PER_PAGE;
+  const endIndex = startIndex + TOPICS_PER_PAGE;
+  const currentTopics = filteredTopics.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of the topics section smoothly
+    const topicsSection = document.getElementById('topics-grid');
+    if (topicsSection) {
+      topicsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Reset to first page when search term or topics change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, topics.length]);
   if (!isVisible) return null;
 
   return (    <div className="space-y-6">
@@ -171,18 +194,22 @@ export default function TechTopicsManager({ isVisible }: TechTopicsManagerProps)
               className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-inkbot-400/50 focus:border-inkbot-400/50 transition-all duration-200"
             />
           </div>
-        </div>
-
-        {/* Stats */}
+        </div>        {/* Stats */}
         <div className="mt-4 flex flex-wrap gap-4 text-sm">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
             <span className="text-gray-300">Total Topics:</span>
             <span className="font-semibold ml-1 text-inkbot-400">{topics.length}</span>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-            <span className="text-gray-300">Showing:</span>
+            <span className="text-gray-300">Filtered:</span>
             <span className="font-semibold ml-1 text-inkbot-400">{filteredTopics.length}</span>
           </div>
+          {totalPages > 1 && (
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+              <span className="text-gray-300">Page:</span>
+              <span className="font-semibold ml-1 text-inkbot-400">{currentPage} of {totalPages}</span>
+            </div>
+          )}
         </div>
       </div>      {/* Loading State */}
       {loading && (
@@ -192,143 +219,173 @@ export default function TechTopicsManager({ isVisible }: TechTopicsManagerProps)
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-inkbot-400 border-t-transparent absolute top-0"></div>
           </div>
         </div>
-      )}
-
-      {/* Topics Grid */}
+      )}      {/* Topics Grid */}
       {!loading && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">          {filteredTopics.length === 0 ? (
-            <div className="col-span-full">
-              <div className="text-center py-12 bg-white/10 rounded-2xl border border-white/20">
-                <div className="text-6xl mb-4">📚</div>
-                <h3 className="text-xl font-semibold text-white mb-2">No Tech Topics Found</h3>
-                <p className="text-gray-400 mb-6">
-                  {searchTerm ? "No topics match your search criteria." : "Get started by adding your first tech topic."}
-                </p>
-                {!searchTerm && (
-                  <button
-                    onClick={handleAdd}
-                    className="px-6 py-3 bg-gradient-to-r from-inkbot-500 to-inkbot-400 text-white rounded-xl font-semibold shadow-lg shadow-inkbot-500/20 hover:shadow-xl hover:shadow-inkbot-500/30 transition-all duration-200 transform hover:scale-105"
-                  >
-                    Add Your First Topic
-                  </button>
-                )}
+        <div id="topics-grid" className="space-y-6">
+          {/* Topics Count Info */}
+          {filteredTopics.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-400">
+              <div>
+                Showing {startIndex + 1}-{Math.min(endIndex, filteredTopics.length)} of {filteredTopics.length} topics
               </div>
+              {totalPages > 1 && (
+                <div className="text-right">
+                  Page {currentPage} of {totalPages}
+                </div>
+              )}
             </div>
-          ) : (            filteredTopics.map((topic) => (
-              <div
-                key={topic._id || topic.id}
-                className="group bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-6 shadow-lg shadow-inkbot-500/5 hover:shadow-xl hover:shadow-inkbot-500/10 transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden"
-              >
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-inkbot-500/10 to-inkbot-400/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-300"></div>
-                
-                <div className="relative z-10">
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(topic.difficulty)}`}>
-                          <span>{getDifficultyIcon(topic.difficulty)}</span>
-                          {topic.difficulty}
-                        </span>
-                        <span className="text-xs text-gray-400 bg-white/10 px-2 py-1 rounded-full">
-                          {topic.timeToComplete}
-                        </span>
-                      </div>
-                      <h3 className="font-bold text-lg text-white mb-2 line-clamp-2 group-hover:text-inkbot-300 transition-colors duration-200">
-                        {topic.topic}
-                      </h3>
-                    </div>
-                    <div className="flex gap-1 ml-2">
-                      <button
-                        onClick={() => handleEdit(topic)}
-                        className="p-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg shadow-lg shadow-yellow-500/20 hover:shadow-xl hover:shadow-yellow-500/30 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
-                        title="Edit topic"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm(topic.id)}
-                        className="p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400/50"
-                        title="Delete topic"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+          )}
 
-                  {/* Content */}
-                  <div className="space-y-3">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <p className="text-sm text-gray-300 mb-2">
-                        <span className="font-medium text-inkbot-400">Angle:</span> {topic.angle}
-                      </p>
-                      <p className="text-sm text-gray-300">
-                        <span className="font-medium text-inkbot-400">Category:</span> {topic.category}
-                      </p>
-                    </div>
-
-                    {/* Keywords */}
-                    {topic.keywords.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-gray-400 mb-2">Keywords:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {topic.keywords.slice(0, 4).map((keyword, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block bg-inkbot-500/20 text-inkbot-300 text-xs px-2 py-1 rounded-full border border-inkbot-400/30"
-                            >
-                              {keyword}
-                            </span>
-                          ))}
-                          {topic.keywords.length > 4 && (
-                            <span className="inline-block bg-white/10 text-gray-400 text-xs px-2 py-1 rounded-full border border-white/20">
-                              +{topic.keywords.length - 4} more
-                            </span>
-                          )}
+          {/* Topics Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredTopics.length === 0 ? (
+              <div className="col-span-full">
+                <div className="text-center py-12 bg-white/10 rounded-2xl border border-white/20">
+                  <div className="text-6xl mb-4">📚</div>
+                  <h3 className="text-xl font-semibold text-white mb-2">No Tech Topics Found</h3>
+                  <p className="text-gray-400 mb-6">
+                    {searchTerm ? "No topics match your search criteria." : "Get started by adding your first tech topic."}
+                  </p>
+                  {!searchTerm && (
+                    <button
+                      onClick={handleAdd}
+                      className="px-6 py-3 bg-gradient-to-r from-inkbot-500 to-inkbot-400 text-white rounded-xl font-semibold shadow-lg shadow-inkbot-500/20 hover:shadow-xl hover:shadow-inkbot-500/30 transition-all duration-200 transform hover:scale-105"
+                    >
+                      Add Your First Topic
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              currentTopics.map((topic) => (
+                <div
+                  key={topic._id || topic.id}
+                  className="group bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-6 shadow-lg shadow-inkbot-500/5 hover:shadow-xl hover:shadow-inkbot-500/10 transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden"
+                >
+                  {/* Background Decoration */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-inkbot-500/10 to-inkbot-400/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-300"></div>
+                  
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(topic.difficulty)}`}>
+                            <span>{getDifficultyIcon(topic.difficulty)}</span>
+                            {topic.difficulty}
+                          </span>
+                          <span className="text-xs text-gray-400 bg-white/10 px-2 py-1 rounded-full">
+                            {topic.timeToComplete}
+                          </span>
                         </div>
+                        <h3 className="font-bold text-lg text-white mb-2 line-clamp-2 group-hover:text-inkbot-300 transition-colors duration-200">
+                          {topic.topic}
+                        </h3>
                       </div>
-                    )}
+                      <div className="flex gap-1 ml-2">
+                        <button
+                          onClick={() => handleEdit(topic)}
+                          className="p-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg shadow-lg shadow-yellow-500/20 hover:shadow-xl hover:shadow-yellow-500/30 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
+                          title="Edit topic"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(topic.id)}
+                          className="p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400/50"
+                          title="Delete topic"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
 
-                    {/* Tools */}
-                    {topic.tools.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-gray-400 mb-2">Tools:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {topic.tools.slice(0, 3).map((tool, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block bg-blue-500/20 text-blue-300 text-xs px-2 py-1 rounded-full border border-blue-400/30"
-                            >
-                              {tool}
-                            </span>
-                          ))}
-                          {topic.tools.length > 3 && (
-                            <span className="inline-block bg-white/10 text-gray-400 text-xs px-2 py-1 rounded-full border border-white/20">
-                              +{topic.tools.length - 3} more
-                            </span>
-                          )}
+                    {/* Content */}
+                    <div className="space-y-3">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                        <p className="text-sm text-gray-300 mb-2">
+                          <span className="font-medium text-inkbot-400">Angle:</span> {topic.angle}
+                        </p>
+                        <p className="text-sm text-gray-300">
+                          <span className="font-medium text-inkbot-400">Category:</span> {topic.category}
+                        </p>
+                      </div>
+
+                      {/* Keywords */}
+                      {topic.keywords.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-400 mb-2">Keywords:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {topic.keywords.slice(0, 4).map((keyword, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-inkbot-500/20 text-inkbot-300 text-xs px-2 py-1 rounded-full border border-inkbot-400/30"
+                              >
+                                {keyword}
+                              </span>
+                            ))}
+                            {topic.keywords.length > 4 && (
+                              <span className="inline-block bg-white/10 text-gray-400 text-xs px-2 py-1 rounded-full border border-white/20">
+                                +{topic.keywords.length - 4} more
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* ID Badge */}
-                    <div className="pt-2 border-t border-white/20">
-                      <span className="text-xs text-gray-400 font-mono bg-white/10 px-2 py-1 rounded">
-                        ID: {topic.id}
-                      </span>
+                      {/* Tools */}
+                      {topic.tools.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-400 mb-2">Tools:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {topic.tools.slice(0, 3).map((tool, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-blue-500/20 text-blue-300 text-xs px-2 py-1 rounded-full border border-blue-400/30"
+                              >
+                                {tool}
+                              </span>
+                            ))}
+                            {topic.tools.length > 3 && (
+                              <span className="inline-block bg-white/10 text-gray-400 text-xs px-2 py-1 rounded-full border border-white/20">
+                                +{topic.tools.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ID Badge */}
+                      <div className="pt-2 border-t border-white/20">
+                        <span className="text-xs text-gray-400 font-mono bg-white/10 px-2 py-1 rounded">
+                          ID: {topic.id}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && filteredTopics.length > 0 && (
+            <div className="mt-8 flex justify-center">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                className="w-full max-w-md"
+              />
+            </div>
           )}
-        </div>
-      )}      {/* Delete Confirmation Modal */}
+        </div>      )}
+
+      {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900/95 backdrop-blur-sm border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">

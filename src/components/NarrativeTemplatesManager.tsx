@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
+import Pagination from './Pagination';
 
 interface NarrativeTemplate {
   _id?: string;
@@ -26,6 +27,9 @@ export default function NarrativeTemplatesManager({ isVisible }: NarrativeTempla
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const TEMPLATES_PER_PAGE = 6;
 
   useEffect(() => {
     if (isVisible) {
@@ -146,13 +150,32 @@ export default function NarrativeTemplatesManager({ isVisible }: NarrativeTempla
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
   const filteredTemplates = templates.filter(template =>
     template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     template.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
     template.categoryCompatibility.some(category => category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredTemplates.length / TEMPLATES_PER_PAGE);
+  const startIndex = (currentPage - 1) * TEMPLATES_PER_PAGE;
+  const endIndex = startIndex + TEMPLATES_PER_PAGE;
+  const currentTemplates = filteredTemplates.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of the templates section smoothly
+    const templatesSection = document.getElementById('templates-grid');
+    if (templatesSection) {
+      templatesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Reset to first page when search term or templates change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, templates.length]);
   if (!isVisible) return null;
 
   return (    <div className="space-y-6">
@@ -191,9 +214,7 @@ export default function NarrativeTemplatesManager({ isVisible }: NarrativeTempla
               className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-inkbot-500 focus:border-transparent transition-all duration-200 text-white placeholder-gray-400"
             />
           </div>
-        </div>
-
-        {/* Stats */}
+        </div>        {/* Stats */}
         <div className="mt-4 flex flex-wrap gap-4 text-sm">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
             <span className="text-gray-300">Total Templates:</span>
@@ -204,9 +225,15 @@ export default function NarrativeTemplatesManager({ isVisible }: NarrativeTempla
             <span className="font-semibold ml-1 text-inkbot-400">{templates.filter(t => t.isActive).length}</span>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-            <span className="text-gray-300">Showing:</span>
+            <span className="text-gray-300">Filtered:</span>
             <span className="font-semibold ml-1 text-inkbot-400">{filteredTemplates.length}</span>
           </div>
+          {totalPages > 1 && (
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+              <span className="text-gray-300">Page:</span>
+              <span className="font-semibold ml-1 text-inkbot-400">{currentPage} of {totalPages}</span>
+            </div>
+          )}
         </div>
       </div>      {/* Loading State */}
       {loading && (
@@ -216,124 +243,154 @@ export default function NarrativeTemplatesManager({ isVisible }: NarrativeTempla
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-inkbot-500 border-t-transparent absolute top-0"></div>
           </div>
         </div>
-      )}
-
-      {/* Templates Grid */}
+      )}      {/* Templates Grid */}
       {!loading && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">          {filteredTemplates.length === 0 ? (
-            <div className="col-span-full">
-              <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/10">
-                <div className="text-6xl mb-4">📝</div>
-                <h3 className="text-xl font-semibold text-white mb-2">No Narrative Templates Found</h3>
-                <p className="text-gray-300 mb-6">
-                  {searchTerm ? "No templates match your search criteria." : "Get started by adding your first narrative template."}
-                </p>
-                {!searchTerm && (
-                  <button
-                    onClick={handleAdd}
-                    className="px-6 py-3 bg-gradient-to-r from-inkbot-500 to-inkbot-400 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-                  >
-                    Add Your First Template
-                  </button>
-                )}
+        <div id="templates-grid" className="space-y-6">
+          {/* Templates Count Info */}
+          {filteredTemplates.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-400">
+              <div>
+                Showing {startIndex + 1}-{Math.min(endIndex, filteredTemplates.length)} of {filteredTemplates.length} templates
               </div>
+              {totalPages > 1 && (
+                <div className="text-right">
+                  Page {currentPage} of {totalPages}
+                </div>
+              )}
             </div>
-          ) : (
-            filteredTemplates.map((template) => (
-              <div
-                key={template._id || template.id}
-                className="group bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden"
-              >
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-300"></div>
-                
-                <div className="relative z-10">                  {/* Header */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getTypeColor(template.type)}`}>
-                          <span>{getTypeIcon(template.type)}</span>
-                          {template.type.replace('-', ' ')}
-                        </span>
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(template.difficulty)}`}>
-                          {template.difficulty}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${template.isActive ? 'bg-green-500/20 text-green-300 border border-green-400/20' : 'bg-red-500/20 text-red-300 border border-red-400/20'}`}>
-                          {template.isActive ? '✅ Active' : '❌ Inactive'}
-                        </span>
-                      </div>
-                      <h3 className="font-bold text-lg text-white mb-2 line-clamp-2 group-hover:text-inkbot-400 transition-colors duration-200">
-                        {template.name}
-                      </h3>
-                    </div>
-                    <div className="flex gap-1 ml-2">
-                      <button
-                        onClick={() => handleEdit(template)}
-                        className="p-2 bg-gradient-to-r from-inkbot-500 to-inkbot-400 text-white rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-inkbot-300"
-                        title="Edit template"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm(template.id)}
-                        className="p-2 bg-gradient-to-r from-red-500 to-red-400 text-white rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-300"
-                        title="Delete template"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+          )}
 
-                  {/* Content */}
-                  <div className="space-y-3">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <p className="text-sm text-gray-300 line-clamp-3">
-                        {template.description}
-                      </p>
-                    </div>
-
-                    {/* Categories */}
-                    {template.categoryCompatibility.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-gray-400 mb-2">Compatible Categories:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {template.categoryCompatibility.slice(0, 3).map((category, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block bg-inkbot-500/20 text-inkbot-300 text-xs px-2 py-1 rounded-full border border-inkbot-400/20"
-                            >
-                              {category}
-                            </span>
-                          ))}
-                          {template.categoryCompatibility.length > 3 && (
-                            <span className="inline-block bg-white/10 text-gray-300 text-xs px-2 py-1 rounded-full border border-white/20">
-                              +{template.categoryCompatibility.length - 3} more
-                            </span>
-                          )}
+          {/* Templates Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredTemplates.length === 0 ? (
+              <div className="col-span-full">
+                <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="text-6xl mb-4">📝</div>
+                  <h3 className="text-xl font-semibold text-white mb-2">No Narrative Templates Found</h3>
+                  <p className="text-gray-300 mb-6">
+                    {searchTerm ? "No templates match your search criteria." : "Get started by adding your first narrative template."}
+                  </p>
+                  {!searchTerm && (
+                    <button
+                      onClick={handleAdd}
+                      className="px-6 py-3 bg-gradient-to-r from-inkbot-500 to-inkbot-400 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                    >
+                      Add Your First Template
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              currentTemplates.map((template) => (
+                <div
+                  key={template._id || template.id}
+                  className="group bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] relative overflow-hidden"
+                >
+                  {/* Background Decoration */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/20 to-teal-200/20 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-300"></div>
+                  
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getTypeColor(template.type)}`}>
+                            <span>{getTypeIcon(template.type)}</span>
+                            {template.type.replace('-', ' ')}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(template.difficulty)}`}>
+                            {template.difficulty}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${template.isActive ? 'bg-green-500/20 text-green-300 border border-green-400/20' : 'bg-red-500/20 text-red-300 border border-red-400/20'}`}>
+                            {template.isActive ? '✅ Active' : '❌ Inactive'}
+                          </span>
                         </div>
+                        <h3 className="font-bold text-lg text-white mb-2 line-clamp-2 group-hover:text-inkbot-400 transition-colors duration-200">
+                          {template.name}
+                        </h3>
                       </div>
-                    )}
+                      <div className="flex gap-1 ml-2">
+                        <button
+                          onClick={() => handleEdit(template)}
+                          className="p-2 bg-gradient-to-r from-inkbot-500 to-inkbot-400 text-white rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-inkbot-300"
+                          title="Edit template"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(template.id)}
+                          className="p-2 bg-gradient-to-r from-red-500 to-red-400 text-white rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-300"
+                          title="Delete template"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
 
-                    {/* Metadata */}
-                    <div className="pt-2 border-t border-white/10 flex justify-between items-center">
-                      <span className="text-xs text-gray-400 font-mono bg-white/10 px-2 py-1 rounded">
-                        ID: {template.id}
-                      </span>
-                      <span className="text-xs text-inkbot-300 bg-inkbot-500/20 px-2 py-1 rounded-full border border-inkbot-400/20">
-                        Priority: {template.priority}
-                      </span>
+                    {/* Content */}
+                    <div className="space-y-3">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                        <p className="text-sm text-gray-300 line-clamp-3">
+                          {template.description}
+                        </p>
+                      </div>
+
+                      {/* Categories */}
+                      {template.categoryCompatibility.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-400 mb-2">Compatible Categories:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {template.categoryCompatibility.slice(0, 3).map((category, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-inkbot-500/20 text-inkbot-300 text-xs px-2 py-1 rounded-full border border-inkbot-400/20"
+                              >
+                                {category}
+                              </span>
+                            ))}
+                            {template.categoryCompatibility.length > 3 && (
+                              <span className="inline-block bg-white/10 text-gray-300 text-xs px-2 py-1 rounded-full border border-white/20">
+                                +{template.categoryCompatibility.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Metadata */}
+                      <div className="pt-2 border-t border-white/10 flex justify-between items-center">
+                        <span className="text-xs text-gray-400 font-mono bg-white/10 px-2 py-1 rounded">
+                          ID: {template.id}
+                        </span>
+                        <span className="text-xs text-inkbot-300 bg-inkbot-500/20 px-2 py-1 rounded-full border border-inkbot-400/20">
+                          Priority: {template.priority}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && filteredTemplates.length > 0 && (
+            <div className="mt-8 flex justify-center">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                className="w-full max-w-md"
+              />
+            </div>
           )}
-        </div>
-      )}      {/* Delete Confirmation Modal */}
+        </div>      )}
+
+      {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900/95 backdrop-blur-sm rounded-2xl p-6 max-w-md w-full shadow-2xl border border-white/10">
