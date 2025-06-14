@@ -5,6 +5,13 @@ import { requireAuth } from '@/lib/middleware';
 import { CategoryService } from '@/lib/categoryService';
 import { TagService } from '@/lib/tagService';
 
+// Function to generate unique custom ID
+function generateCustomId(): string {
+  const timestamp = Date.now();
+  const randomStr = Math.random().toString(36).substring(2, 8);
+  return `post_${timestamp}_${randomStr}`;
+}
+
 export async function GET() {
   try {
     const Post = await getBlogModel();
@@ -47,10 +54,11 @@ export async function POST(request: NextRequest) {
       // Ensure tags exist in database
       const tagService = TagService.getInstance();
       await tagService.ensureTagsExist(generatedPost.tags);
-      
-      // Get blog model and save the generated post
+        // Get blog model and save the generated post
       const Post = await getBlogModel();
+      const customId = generateCustomId();
       const post = new Post({
+        id: customId,
         title: generatedPost.title,
         content: generatedPost.content,
         excerpt: generatedPost.excerpt,
@@ -62,13 +70,20 @@ export async function POST(request: NextRequest) {
         publishedAt: new Date()
       });
       
-      const savedPost = await post.save();
+      console.log('Creating post with custom ID:', customId);const savedPost = await post.save();
+      
+      console.log('Generated post saved to database:', {
+        title: savedPost.title,
+        _id: savedPost._id,
+        id: savedPost.id,
+        slug: savedPost.slug
+      });
       
       return NextResponse.json({
         success: true,
         data: savedPost,
         generated: true
-      });    } else {
+      });} else {
       // Direct post creation
       const { title, content, excerpt } = body;
       const categories = body.categories || [];
@@ -86,9 +101,10 @@ export async function POST(request: NextRequest) {
         const tagService = TagService.getInstance();
         await tagService.ensureTagsExist(tags);
       }
-      
-      const Post = await getBlogModel();
+        const Post = await getBlogModel();
+      const customId = generateCustomId();
       const post = new Post({
+        id: customId,
         title,
         content,
         excerpt,
@@ -100,7 +116,14 @@ export async function POST(request: NextRequest) {
         publishedAt: new Date()
       });
       
-      const savedPost = await post.save();
+      console.log('Creating manual post with custom ID:', customId);const savedPost = await post.save();
+      
+      console.log('Manual post saved to database:', {
+        title: savedPost.title,
+        _id: savedPost._id,
+        id: savedPost.id,
+        slug: savedPost.slug
+      });
       
       return NextResponse.json({
         success: true,
