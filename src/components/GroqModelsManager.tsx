@@ -65,24 +65,32 @@ export default function GroqModelsManager({ isVisible }: GroqModelsManagerProps)
           method: 'POST',
           body: JSON.stringify(modelData),
         });
-      }
-
-      if (response.success) {
+      }      if (response.success) {
         await fetchModels();
         setEditingModel(null);
         setIsFormVisible(false);
-        alert(response.message || 'Operation successful');
+        
+        const modelName = editingModel ? editingModel.name : (document.querySelector('input[placeholder="Model Name"]') as HTMLInputElement)?.value || 'model';
+        const action = editingModel ? 'updated' : 'created';
+        alert(`✅ Groq Model ${action} successfully!\n\n📝 Model: ${modelName}\n🎯 This model is now available for blog post generation.`);
+      } else {
+        const errorMsg = response.error || 'Unknown error occurred';
+        alert(`❌ Failed to save Groq model\n\n💡 Please check:\n• Model name is unique\n• All required fields are filled\n• You have proper permissions\n\nError: ${errorMsg}`);
       }
     } catch (error) {
       console.error('Error saving model:', error);
-      alert('Error saving model');
+      const errorMsg = error instanceof Error ? error.message : 'Network error';
+      alert(`❌ Network error while saving model\n\n🔗 Connection issue detected. Please:\n• Check your internet connection\n• Refresh the page and try again\n• Contact support if the problem persists\n\nTechnical details: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
   };
-
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this model?')) return;
+    // Get model name for better confirmation message
+    const modelToDelete = models.find(m => m._id === id);
+    const modelName = modelToDelete?.name || 'this model';
+    
+    if (!confirm(`🗑️ Delete Groq Model: "${modelName}"?\n\n⚠️ This action cannot be undone.\n✅ The model will be removed from your blog generation options.\n\nAre you sure you want to continue?`)) return;
 
     setLoading(true);
     try {
@@ -92,11 +100,15 @@ export default function GroqModelsManager({ isVisible }: GroqModelsManagerProps)
 
       if (response.success) {
         await fetchModels();
-        alert(response.message || 'Model deleted successfully');
+        alert(`✅ Model deleted successfully!\n\n📝 "${modelName}" has been removed from your available models.\n🎯 This model is no longer available for blog post generation.`);
+      } else {
+        const errorMsg = response.error || 'Unknown error occurred';
+        alert(`❌ Failed to delete model\n\n💡 Possible reasons:\n• The model is currently in use\n• You don't have deletion permissions\n• Server error occurred\n\nError: ${errorMsg}`);
       }
     } catch (error) {
       console.error('Error deleting model:', error);
-      alert('Error deleting model');
+      const errorMsg = error instanceof Error ? error.message : 'Network error';
+      alert(`❌ Network error while deleting model\n\n🔗 Connection issue detected. Please:\n• Check your internet connection\n• Refresh the page and try again\n• The model might still exist - check the list\n\nTechnical details: ${errorMsg}`);
     } finally {
       setLoading(false);
     }

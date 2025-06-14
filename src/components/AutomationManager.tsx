@@ -96,15 +96,14 @@ const AutomationManager = () => {
     try {
       setLoading(true);
       setError(null);
-      setSuccess(null);
-      
-      console.log('Calling sync API...');
+      setSuccess(null);      
+      console.log('🔄 Automation: Starting cron jobs synchronization...');
       
       // Make the raw fetch call to get more control over error handling
       const url = '/api/cron/sync';
       const token = localStorage.getItem('token');
       
-      console.log('Using token:', token ? 'Present' : 'Missing');
+      console.log('🔑 Automation: Authentication status:', token ? '✅ Token present' : '❌ No token found');
       
       const fetchResponse = await fetch(url, {
         method: 'POST',
@@ -114,44 +113,77 @@ const AutomationManager = () => {
         }
       });
       
-      console.log('Fetch response status:', fetchResponse.status);
-      console.log('Fetch response headers:', Object.fromEntries(fetchResponse.headers.entries()));
+      console.log('📡 Automation: Server response received:', {
+        status: fetchResponse.status,
+        statusText: fetchResponse.statusText,
+        contentType: fetchResponse.headers.get('content-type'),
+        successful: fetchResponse.ok      });
       
       // Get raw text first
       const rawText = await fetchResponse.text();
-      console.log('Raw response length:', rawText.length);
-      console.log('Raw response:', rawText);
+      console.log('📄 Automation: Response received:', {
+        length: rawText.length,
+        isEmpty: !rawText.trim(),
+        preview: rawText.substring(0, 100) + (rawText.length > 100 ? '...' : '')
+      });
       
       if (!rawText.trim()) {
-        setError('Server returned empty response');
+        console.error('❌ Automation: Empty response from server');
+        setError('Server returned empty response - there may be a server issue');
         return;
       }
       
       let response;
       try {
         response = JSON.parse(rawText);
+        console.log('✅ Automation: Successfully parsed server response:', {
+          success: response.success,
+          hasData: !!response.data,
+          dataKeys: response.data ? Object.keys(response.data) : []
+        });
       } catch (jsonError) {
-        console.error('JSON parsing error:', jsonError);
-        setError(`Invalid server response: ${rawText.substring(0, 100)}`);
+        console.error('❌ Automation: JSON parsing failed:', {
+          error: jsonError instanceof Error ? jsonError.message : 'Unknown JSON error',
+          rawResponse: rawText.substring(0, 200)
+        });
+        setError(`Invalid server response format. Expected JSON but received: ${rawText.substring(0, 100)}`);
         return;
       }
 
-      console.log('Parsed response:', response);
-
       if (response.success) {
-        setSuccess(`Successfully synced ${response.data?.jobsSynced || 0} jobs from cron.org`);
-        setLastSyncTime(new Date().toLocaleString());
-        await loadJobs();
+        const jobsCount = response.data?.jobsSynced || 0;
+        console.log('🎉 Automation: Sync completed successfully:', {
+          jobsSynced: jobsCount,
+          totalJobs: response.data?.totalJobs || 'unknown',
+          duration: response.data?.duration || 'unknown'
+        });
+        setSuccess(`✅ Successfully synchronized ${jobsCount} automation jobs from cron.org! Your automation schedule is now up to date.`);
+        setLastSyncTime(new Date().toLocaleString());        await loadJobs();
         await loadStatistics();
       } else {
-        setError(response.error || 'Failed to sync jobs');
+        const errorMsg = response.error || 'Unknown server error occurred';
+        console.warn('⚠️ Automation: Sync failed on server side:', {
+          error: errorMsg,
+          responseData: response.data || 'No additional data'
+        });
+        setError(`❌ Synchronization failed: ${errorMsg}. Please check your connection and try again.`);
       }
     } catch (err) {
-      console.error('Sync error:', err);
-      if (err instanceof Error && err.message.includes('JSON')) {
-        setError('Server returned invalid response. Check server logs.');
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('❌ Automation: Critical sync error:', {
+        error: errorMsg,
+        errorType: err instanceof Error ? err.constructor.name : typeof err,
+        stack: err instanceof Error ? err.stack : 'No stack trace'
+      });
+      
+      if (errorMsg.includes('JSON')) {
+        setError('🔧 Server communication error: Invalid response format received. The server may be experiencing issues.');
+      } else if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
+        setError('🌐 Network connection error: Unable to reach the server. Please check your internet connection and try again.');
+      } else if (errorMsg.includes('Authentication') || errorMsg.includes('401')) {
+        setError('🔐 Authentication error: Your session may have expired. Please refresh the page and log in again.');
       } else {
-        setError(`Error syncing jobs: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        setError(`⚠️ Unexpected error occurred during synchronization: ${errorMsg}. Please try again or contact support if the issue persists.`);
       }
     } finally {
       setLoading(false);
@@ -400,14 +432,36 @@ const AutomationManager = () => {
                     headers: {
                       'Content-Type': 'application/json',
                       'Authorization': `Bearer ${token}`
-                    }
-                  });
+                    }                  });
                   const text = await response.text();
-                  console.log('Direct test response:', text);
-                  alert(`Direct test result: ${text.substring(0, 200)}`);
+                  console.log('✅ Automation: Direct API test successful:', {
+                    statusCode: response.status,
+                    responseLength: text.length,
+                    preview: text.substring(0, 100) + '...'
+                  });
+                  
+                  if (response.ok) {
+                    alert(`✅ API Test Successful!\n\n🎯 Server Response: ${response.status}\n📄 Data Length: ${text.length} characters\n\n📝 Preview:\n${text.substring(0, 150)}${text.length > 150 ? '...' : ''}\n\n💡 Your automation system is working correctly!`);
+                  } else {
+                    alert(`⚠️ API Test Warning!\n\n🎯 Server Response: ${response.status}\n📄 Error Details:\n${text.substring(0, 200)}\n\n💡 The server responded but with an error status. Check your settings.`);
+                  }
                 } catch (e) {
-                  console.error('Direct test error:', e);
-                  alert(`Direct test error: ${e instanceof Error ? e.message : String(e)}`);
+                  const errorMsg = e instanceof Error ? e.message : String(e);
+                  console.error('❌ Automation: Direct API test failed:', errorMsg);
+                  
+                  let userMessage = '❌ API Test Failed!\n\n';
+                  if (errorMsg.includes('Network')) {
+                    userMessage += '🌐 Network connection issue detected.\n💡 Please check your internet connection and try again.';
+                  } else if (errorMsg.includes('fetch')) {
+                    userMessage += '🔗 Connection to server failed.\n💡 The server may be temporarily unavailable.';
+                  } else if (errorMsg.includes('Authentication') || errorMsg.includes('401')) {
+                    userMessage += '🔐 Authentication failed.\n💡 Please log out and log back in.';
+                  } else {
+                    userMessage += '⚠️ Unexpected error occurred.\n💡 Please refresh the page and try again.';
+                  }
+                  userMessage += `\n\nTechnical details: ${errorMsg}`;
+                  
+                  alert(userMessage);
                 }
               }}
               className="px-2 sm:px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-gray-300 hover:text-white rounded-xl transition-all duration-300 hover:bg-white/20 text-sm"

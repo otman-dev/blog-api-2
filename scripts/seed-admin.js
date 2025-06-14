@@ -4,9 +4,9 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // Default admin user configuration
-const ADMIN_EMAIL = 'admin@blog-api.com';
-const ADMIN_PASSWORD = 'adminSecret123';
-const ADMIN_NAME = 'Admin User';
+const ADMIN_EMAIL = 'admin-visitor@blog-api.com';
+const ADMIN_PASSWORD = 'visitor123';
+const ADMIN_NAME = 'Admin Visitor';
 
 // MongoDB connection string for users (different from blog content)
 const MONGODB_URI = process.env.MONGODB_ADMIN_URI;

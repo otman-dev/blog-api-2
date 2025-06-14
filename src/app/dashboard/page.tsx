@@ -17,27 +17,31 @@ export default function DashboardPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  const [intervalText, setIntervalText] = useState('Loading...');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [intervalText, setIntervalText] = useState('Loading...');  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Modern SVG Icon Component
   const TabIcon = ({ type, className = "w-5 h-5" }: { type: string; className?: string }) => {
     switch (type) {
-      case 'overview':        return (
+      case 'overview':
+        return (
           <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
         );
-      case 'groq-models':        return (
+      case 'groq-models':
+        return (
           <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
         );
-      case 'narrative-templates':        return (
+      case 'narrative-templates':
+        return (
           <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-        );      case 'tech-topics':        return (
+        );
+      case 'tech-topics':
+        return (
           <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -69,36 +73,46 @@ export default function DashboardPage() {
     checkGenerationStatus();
     fetchCronInterval();
   }, [isAuthenticated, router]);
-
   const fetchPosts = async () => {
     try {
+      console.log('📥 Dashboard: Loading latest blog posts...');
       const response = await apiFetch('/api/blogs');
       if (response.success) {
         setPosts(response.data.slice(0, 5)); // Show latest 5 posts
+        console.log(`✅ Dashboard: Successfully loaded ${response.data.length} posts (showing latest 5)`);
+      } else {
+        console.warn('⚠️ Dashboard: Failed to fetch posts:', response.error);
       }
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('❌ Dashboard: Network error while fetching posts:', error instanceof Error ? error.message : 'Unknown error');
     }
-  };
-  const checkGenerationStatus = async () => {
+  };  const checkGenerationStatus = async () => {
     try {
+      console.log('🔍 Dashboard: Checking automation status...');
       const response = await apiFetch('/api/automation-state');
       if (response.success) {
         setIsGenerating(response.data.isActive);
         setIntervalText(`${response.data.intervalMinutes} minutes`);
-        console.log('✅ Loaded automation state from database:', response.data.isActive);
+        console.log('✅ Dashboard: Automation status loaded:', {
+          isActive: response.data.isActive,
+          interval: response.data.intervalMinutes + ' minutes',
+          nextGeneration: response.data.isActive ? 'Active' : 'Paused'
+        });
       } else if (response.error && response.error.includes('Authentication required')) {
-        console.log('🔒 Authentication expired, logging out...');
+        console.log('🔒 Dashboard: Authentication expired, redirecting to login...');
         logout();
+      } else {
+        console.warn('⚠️ Dashboard: Failed to load automation status:', response.error);
       }
     } catch (error) {
-      console.error('Error checking automation state:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Dashboard: Error checking automation status:', errorMsg);
       // If it's a network error or other issue, don't auto-logout
     }
   };
-
   const fetchCronInterval = async () => {
     try {
+      console.log('⏱️ Dashboard: Loading cron interval settings...');
       const response = await apiFetch('/api/cron-interval');
       if (response.success) {
         const { intervalMinutes } = response.data;
@@ -115,18 +129,22 @@ export default function DashboardPage() {
             setIntervalText(`${hours}h ${mins}min`);
           }
         }
-        console.log('✅ Loaded cron interval:', intervalMinutes, 'minutes');
+        console.log('✅ Dashboard: Cron interval loaded successfully:', {
+          rawMinutes: intervalMinutes,
+          displayText: intervalMinutes < 60 ? `${intervalMinutes} minutes` : 'Complex interval',
+          description: 'Posts will be generated at this interval when automation is active'
+        });
       } else {
-        console.warn('Failed to fetch cron interval, using default');
+        console.warn('⚠️ Dashboard: Failed to fetch cron interval, using default (10 minutes)');
         setIntervalText('10 minutes');
       }
     } catch (error) {
-      console.error('Error fetching cron interval:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ Dashboard: Error fetching cron interval settings:', errorMsg);
       setIntervalText('10 minutes'); // Fallback
     }
   };
-
-  const handleAutoGeneration = async (action: string) => {
+  const handleAutoGeneration = async (action: 'start' | 'stop' | 'generate-now' | 'sync') => {
     setLoading(true);
     try {
       const data = await apiFetch('/api/auto-generate', {
@@ -140,17 +158,46 @@ export default function DashboardPage() {
       if (data.success) {
         // Refresh the state from database instead of assuming the action result
         await checkGenerationStatus();
-        alert(data.message);
+        
+        // Show helpful success messages based on action
+        const successMessages: Record<typeof action, string> = {
+          'start': '🚀 Auto-generation started successfully! New posts will be generated automatically.',
+          'stop': '⏸️ Auto-generation paused. No new posts will be generated until restarted.',
+          'generate-now': '✨ Post generation triggered! A new post is being created now.',
+          'sync': '🔄 Cron jobs synchronized successfully with the server.'
+        };
+        
+        alert(successMessages[action] || data.message || '✅ Operation completed successfully!');
+        
         if (action === 'generate-now') {
+          alert('📝 Your new post should appear in the posts list within a few moments. Check the automation panel for generation progress.');
           setTimeout(fetchPosts, 2000); // Refresh posts after generation
         }
       }
     } catch (error) {
       console.error('Error controlling auto-generation:', error);
-      alert('Error occurred');
+      
+      // Show helpful error messages based on error type
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      let userFriendlyMessage = '❌ An error occurred while processing your request.';
+      
+      if (errorMessage.includes('Authentication')) {
+        userFriendlyMessage = '🔐 Your session has expired. Please log in again to continue.';
+        logout();
+      } else if (errorMessage.includes('Network')) {
+        userFriendlyMessage = '🌐 Network connection issue. Please check your internet connection and try again.';
+      } else if (errorMessage.includes('timeout')) {
+        userFriendlyMessage = '⏱️ The request took too long. Please try again in a moment.';
+      } else if (action === 'generate-now') {
+        userFriendlyMessage = '❌ Failed to generate post. Please check your Groq API settings and try again.';
+      } else if (action === 'sync') {
+        userFriendlyMessage = '❌ Failed to sync cron jobs. The server may be temporarily unavailable.';
+      }
+        alert(userFriendlyMessage + '\n\nTechnical details: ' + errorMessage);
     } finally {
       setLoading(false);
-    }  };
+    }
+  };
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
